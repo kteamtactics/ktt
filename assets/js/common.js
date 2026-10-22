@@ -5,6 +5,9 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 // Social links: paste a full address between the quotes to show it in the footer. Leave "" to hide it.
 KTT.social={reddit:"https://www.reddit.com/user/KillTeamTactics/",patreon:"https://www.patreon.com/cw/KillTeamTactics",instagram:""};
 const NAV=[["index.html","Home"],["teams.html","Teams"],["calculator.html","Calculator"],["analysis.html","Battle analysis"],["quiz.html","Quiz"],["puzzles.html","Puzzles"]];
+(function(){ // favicon on every page (files: assets/img/favicon.png, assets/img/apple-touch-icon.png)
+  [["icon","assets/img/favicon.png"],["apple-touch-icon","assets/img/apple-touch-icon.png"]].forEach(a=>{if(document.querySelector('link[rel="'+a[0]+'"]'))return;const l=document.createElement("link");l.rel=a[0];l.href=a[1];if(a[0]==="icon")l.type="image/png";document.head.appendChild(l)});
+})();
 (function(){
   const cur=(location.pathname.split("/").pop()||"index.html");
   const h=document.getElementById("site-header");
