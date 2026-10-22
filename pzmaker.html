@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Puzzle maker | KTT</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/puzzles.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Puzzle maker</h1>
+<div id="gate" hidden><p>This page is only for the site owner. <a href="pzmaker.html?owner=1">Enter owner mode</a></p></div>
+<section id="list" hidden><p class="sub" style="margin-top:-.4rem">A puzzle is an article: a small board, operatives, a mission and the one winning line.</p><div class="rgrid" id="plist"></div></section>
+<section id="ed" hidden>
+<div class="pztabs"><button type="button" class="sm on" id="tabS">1. Setup</button><button type="button" class="sm" id="tabR">2. Play the solution</button></div>
+<div id="vS">
+ <div class="pzrow"><div><label for="pTitle">Title</label><input id="pTitle" maxlength="90" placeholder="Puzzle title"></div><div><label for="pBoard">Board</label><select id="pBoard"></select></div></div>
+ <label for="pIntro">Short introduction (shown above the board)</label><textarea id="pIntro" rows="2" maxlength="400" placeholder="Optional context for the reader"></textarea>
+ <div class="pzrow"><div><label for="tA">Your team (the reader plays it)</label><select id="tA"></select></div><div><label for="tB">Enemy team (does not act)</label><select id="tB"></select></div></div>
+ <h2>Place on the board</h2>
+ <div class="tools" id="tools"></div>
+ <div class="pal" id="palA"></div><div class="pal" id="palB"></div>
+ <div class="pzwrap"><div id="sbox"></div></div>
+ <p class="note" id="hint" role="status"></p>
+ <div class="box"><h2>Operatives on the board</h2><p class="note" style="margin-top:0">APL is set here, before the game. Enemy operatives tick "target" if the reader must incapacitate them.</p><div id="ulist"></div></div>
+ <div class="box" style="margin-top:1rem"><h2>Mission</h2>
+  <div class="pzrow"><div><label for="mVp">Victory points to score</label><input id="mVp" type="number" min="0" max="12" value="0"></div><div><label for="mCrit">Crit Op</label><select id="mCrit"></select></div></div>
+  <label for="mTac">Tac Op</label><select id="mTac"></select>
+  <label class="inl"><input type="checkbox" id="mKill"> Kill Op applies</label>
+  <label for="mText">Extra sentence (optional)</label><input id="mText" maxlength="160" placeholder="e.g. You have one Turning Point.">
+  <p class="note" id="mPrev"></p></div>
+</div>
+<div id="vR" hidden>
+ <p class="note" style="margin-top:0">Play the winning line exactly as the reader will: pick an operative, an action, then a target. Each step is recorded below. After a Shoot or Fight, say what happens (a shot usually wounds, a fight usually incapacitates) and give the victory points the step earns. If several lines are valid, add another solution: the reader succeeds with any of them.</p>
+ <div class="tools" id="solbar"></div><div id="rbox"></div><div class="box" style="margin-top:1rem"><h2>Recorded line</h2><div id="steps"></div></div>
+</div>
+<ul class="chk" id="chk"></ul>
+<div class="tools" style="margin-top:1.2rem"><button class="btn" id="go" type="button">Publish on the site</button> <button class="sm" id="pub" type="button">Copy for publication</button> <button class="sm" id="goS" type="button">Publish settings</button> <a class="sm" id="prev" href="#" target="_blank">Preview as a reader</a> <a class="sm" href="pzmaker.html">All puzzles</a> <button class="sm" id="del" type="button">Delete this draft</button></div>
+<p class="note" id="msg" role="status"></p>
+<textarea id="out" class="outbox" rows="6" hidden readonly></textarea>
+<p class="note">Your puzzle is saved in this browser as you work. To publish it, press the button and paste the text in the chat: it will appear on the home page.</p>
+</section></div></main>
+<footer id="site-footer"></footer>
+<script src="data/site.js"></script><script src="data/teams.js"></script><script src="data/pzboards.js"></script><script src="data/ops.js"></script><script src="assets/js/sprites.js"></script><script src="assets/js/common.js"></script><script src="assets/js/pz2.js"></script><script src="assets/js/publish.js"></script><script src="assets/js/pzmaker.js"></script>
+</body></html>

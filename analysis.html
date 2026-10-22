@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kill Team battle report builder | KTT</title>
+<meta name="description" content="Build a Kill Team battle report: write each action, move the operatives on the map, draw shots and damage, add your analysis."><meta property="og:title" content="Kill Team battle report builder | KTT"><meta property="og:description" content="Build a Kill Team battle report: write each action, move the operatives on the map, draw shots and damage, add your analysis."><meta property="og:type" content="website"><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Battle analysis</h1>
+<section id="landing" hidden>
+<p class="sub" style="margin-top:-.4rem">Battle reports and game replays: follow every activation on the map, with the analysis behind it.</p>
+<div class="rgrid" id="rgrid"></div>
+
+</section>
+<section id="editor" hidden>
+ <div class="tools" style="margin-top:0"><a class="sm" href="analysis.html">&larr; All reports</a><span id="saved" class="note" style="margin:0 .5rem"></span><button class="sm edonly" id="delRep" type="button" style="margin-left:auto">Delete this report</button></div>
+ <input id="rtitle" class="edonly rtitle" placeholder="Title of the battle report" aria-label="Title">
+ <h2 id="rtitleRO" class="rtitleRO" hidden></h2>
+ <p class="note" id="rsub" style="margin:.2rem 0 .8rem"></p>
+ <div id="introBox" class="edtext"><label class="edonly" for="intro">Introduction</label><textarea id="intro" class="edonly" rows="3" placeholder="Who plays, what is at stake, the mission, your pre-game plan..."></textarea><div class="prose" id="introRO" hidden></div></div>
+ <div class="wbx"><div>
+  <div id="scoreBar" class="sbar" hidden></div>
+  <div class="tools edonly" id="rtools"><button class="sm on" data-tool="move" type="button">Move</button><button class="sm" data-tool="shoot" type="button">Shoot</button><button class="sm" data-tool="fight" type="button">Fight</button><button class="sm" data-tool="prop" type="button">Equipment</button><button class="sm" data-tool="env" type="button">Doors &amp; walls</button><label class="inl" style="margin:0 0 0 .6rem"><input id="snap" type="checkbox" checked>Snap to cells</label></div>
+  <div class="tools edonly" id="ptools" hidden><button class="sm" data-pt="hb" type="button">Heavy barricade</button><button class="sm" data-pt="lb" type="button">Light barricade</button><button class="sm" data-pt="bw" type="button">Barbed wire</button><button class="sm" data-pt="ld" type="button">Ladder</button><button class="sm" data-pa="rot" type="button" disabled>Rotate (R)</button><button class="sm" data-pa="del" type="button" disabled>Delete</button><button class="sm" data-pa="clear" type="button" disabled>Clear all</button></div>
+  <p id="rhint" class="note" style="margin:.2rem 0"></p>
+  <svg id="rb" class="ms" role="img" aria-label="Tactical map"></svg>
+  <div class="tools" style="align-items:center"><button class="sm" id="vFirst" type="button">Start</button><button class="sm" id="vPrev" type="button">Previous</button><button class="sm" id="vPlay" type="button">Play</button><button class="sm" id="vNext" type="button">Next</button><button class="sm" id="vLive" type="button">Live</button><span id="vPos" class="note" style="margin:0 .5rem"></span></div>
+  <div id="tray" class="tray"></div>
+ </div>
+ <div>
+  <div class="box edonly" id="setup"><h2>1. Setup</h2>
+   <label for="mapSel">Map</label><select id="mapSel"></select>
+   <label class="inl"><input id="flip" type="checkbox">Swap the deployment zones</label>
+   <div class="row"><div><label for="pa">Player A (orange)</label><input id="pa" placeholder="Name"></div><div><label for="tA">Team A</label><select id="tA"></select></div></div>
+   <div class="row"><div><label for="pb">Player B (white)</label><input id="pb" placeholder="Name"></div><div><label for="tB">Team B</label><select id="tB"></select></div></div>
+   <div class="tools"><button class="sm" id="rosA" type="button">Add roster A</button><button class="sm" id="rosB" type="button">Add roster B</button></div>
+   <div class="row"><select id="oSide" aria-label="Side"><option value="A">A</option><option value="B">B</option></select><select id="oSel" aria-label="Operative"></select><button class="sm" id="oAdd" type="button">Add one</button></div>
+   <p class="note">Drag the operatives on the map to place them, then validate the deployment below. This panel then disappears.</p>
+  </div>
+  <div class="box edonly" id="draftBox" style="margin-top:1rem"><h2 id="draftH">2. Deployment</h2>
+   <div class="row"><div style="max-width:6rem"><label for="tp">Turning point</label><input id="tp" type="number" min="1" value="1"></div><div><label for="act">Action</label><input id="act" placeholder="Deployment complete"></div></div>
+   <label for="ana">Analysis</label><input id="ana" placeholder="Why this deployment?">
+   <div id="fx" class="fxl"></div>
+   <div class="tools"><button class="sm acc" id="addStep" type="button">Add deployment to report</button><button class="sm" id="clrStep" type="button">Clear step</button><button class="sm" id="cancelEdit" type="button" hidden>Cancel changes</button></div>
+  </div>
+ </div></div>
+ <div class="box" id="scoreBox" style="margin:1.2rem 0"><h2>Score</h2><p class="note edonly" style="margin:.1rem 0 .5rem">Enter the points as they are scored (Crit Op, Tac Op, Kill), then the Primary and Kill bonuses at the end. Totals update by themselves.</p><div id="scoreBody"></div></div>
+ <div class="rep" id="rlist"></div>
+ <div id="conclBox" class="edtext"><label class="edonly" for="concl">Conclusion</label><textarea id="concl" class="edonly" rows="3" placeholder="How the game ended, what decided it, what you would do differently..."></textarea><div class="prose" id="conclRO" hidden></div></div>
+ <div class="tools"><button class="sm" id="copy" type="button">Copy report as text</button><span class="edonly" style="display:contents"><button class="sm" id="pubBtn" type="button">Copy for publication</button><button class="btn" id="goBtn" type="button">Publish on the site</button><button class="btn" id="goFeat" type="button">Publish on the front page</button><button class="sm" id="goSet" type="button">Publish settings</button><button class="sm" id="shareBtn" type="button">Copy share link</button><button class="sm" id="featBtn" type="button">Copy for front page</button><button class="sm" id="save" type="button">Download</button><label class="sm" style="cursor:pointer;margin:0">Load<input id="load" type="file" accept=".json" hidden></label></span></div>
+ <textarea id="out" class="outbox" rows="6" hidden readonly></textarea>
+</section>
+<section id="replay" hidden><a class="sm" href="analysis.html">&larr; All reports</a>
+<div id="p-rp"><div id="gList" hidden><select id="gF"></select><div id="gArch"></div></div>
+<div id="gView" hidden><button class="sm" id="gBack" type="button" hidden>Back</button><h2 id="gT" style="font-size:2.4rem;margin-top:.8rem"></h2><p class="sub" id="gS"></p><div id="gD"></div>
+<div class="gv"><div><svg id="map" class="ms" viewBox="0 0 22 30" role="img" aria-label="Game map"></svg>
+<div class="ctl"><button class="sm" id="gFirst" type="button">Start</button><button class="sm" id="gPrev" type="button">Previous</button><button class="sm" id="gPlay" type="button">Play</button><button class="sm" id="gNext" type="button">Next</button><button class="sm" id="gLast" type="button">End</button></div>
+<input id="gR" type="range" min="0" value="0" aria-label="Move"><div id="gC" class="cm"></div></div>
+<div><div id="gL" class="moves"></div><div id="gW"></div></div></div><div id="gA"></div></div></div></section>
+</main>
+<footer id="site-footer"></footer>
+<script src="data/teams.js"></script><script src="data/maps.js"></script><script src="data/games.js"></script><script src="data/reports.js"></script><script src="assets/js/common.js"></script>
+<script src="assets/js/publish.js"></script><script src="assets/js/report.js"></script><script src="assets/js/replay.js"></script>
+<script>
+const qg=new URLSearchParams(location.search).get("game");if(qg){$("replay").hidden=false;openG(qg)}
+</script></body></html>

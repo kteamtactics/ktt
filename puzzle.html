@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kill Team puzzle | KTT</title>
+<meta name="description" content="A Kill Team tactical puzzle: find the one winning line."><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/puzzles.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><p class="meta" id="pmeta"></p><h1 id="ptitle"></h1><p class="chapo pzintro" id="pintro"></p>
+<div id="pwrap"></div><p><a href="index.html">&larr; All articles</a></p></div></main>
+<footer id="site-footer"></footer>
+<script src="data/site.js"></script><script src="data/teams.js"></script><script src="data/pzboards.js"></script><script src="data/ops.js"></script><script src="data/pzlist.js"></script><script src="assets/js/sprites.js"></script><script src="assets/js/common.js"></script><script src="assets/js/pz2.js"></script>
+<script>
+(function(){const Q=new URLSearchParams(location.search),id=Q.get("id")||Q.get("draft");let p=null;const dr=Q.has("draft");
+ if(dr){if(!KTT.own.on){$("ptitle").textContent="Draft";$("pintro").textContent="Drafts are only visible to their author.";return}try{p=JSON.parse(localStorage.getItem("ktt-pz2:"+id))}catch(e){}}
+ else p=(KTT.pzs||[]).find(x=>x.id===id);
+ if(!p){$("ptitle").textContent="Puzzle not found";$("pintro").innerHTML='<a href="index.html">Back to the home page</a>';return}
+ document.title=(p.title||"Puzzle")+" | KTT";
+ $("pmeta").innerHTML='<span class="pill c">Puzzle</span><span class="pill">'+esc(p.created||"")+'</span>'+(dr?'<span class="pill">Draft preview</span>':"");
+ $("ptitle").textContent=p.title||"Untitled puzzle";$("pintro").textContent=p.intro||"";
+ PZ2.mount($("pwrap"),p,{});
+ if(KTT.own.on){const b=document.createElement("a");b.className="btn";b.href="#";b.textContent=dr?"Back to the maker":"Edit this puzzle";b.style.cssText="display:inline-block;margin:0 0 1rem";
+  b.onclick=e=>{e.preventDefault();const k="ktt-pz2:"+p.id;try{if(!dr&&!localStorage.getItem(k)){localStorage.setItem(k,JSON.stringify(Object.assign({},p,{published:true})));let ix=[];try{ix=JSON.parse(localStorage.getItem("ktt-pz2-index")||"[]")}catch(x){}ix=ix.filter(x=>x.id!==p.id);ix.unshift({id:p.id,title:p.title,updated:Date.now()});localStorage.setItem("ktt-pz2-index",JSON.stringify(ix))}}catch(x){}location.href="pzmaker.html?edit="+encodeURIComponent(p.id)};
+  $("ptitle").before(b);if(Q.get("edit"))b.onclick({preventDefault(){}})}
+})();
+</script></body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Write an article | KTT</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Write an article</h1>
+<div id="gate" hidden><p>This page is only for the site owner. <a href="write.html?owner=1">Enter owner mode</a></p></div>
+<section id="pick" hidden>
+<p class="sub" style="margin-top:-.4rem">What do you want to publish?</p>
+<div class="rgrid">
+<a class="rcard pickc" href="write.html?type=article"><span class="rtag">Article</span><h3>Normal article</h3><p>Text and photos: strategy, news, opinion.</p></a>
+<a class="rcard pickc" href="analysis.html?new"><span class="rtag">Battle analysis</span><h3>Battle analysis</h3><p>Move the operatives on a map, step by step, with your commentary and the score.</p></a>
+<a class="rcard pickc" href="pzmaker.html"><span class="rtag">Puzzle</span><h3>Puzzle</h3><p>A 2D killzone, operatives, a mission and a single solution.</p></a>
+</div></section>
+<section id="ed" hidden>
+<p class="sub" style="margin-top:-.4rem">Write, add photos, preview. Your draft is saved in this browser as you type.</p>
+<div class="box"><h2>Article</h2>
+<label for="aTitle">Title</label><input id="aTitle" maxlength="140">
+<div class="arow"><div><label for="aTag">Tag</label><input id="aTag" list="tags" maxlength="30" placeholder="Analysis"><datalist id="tags"><option>Analysis</option><option>Strategy</option><option>Guide</option><option>Speculation</option><option>Report</option></datalist></div>
+<div><label for="aDate">Date</label><input id="aDate" type="date"></div></div>
+<label for="aChapo">Summary (shown on the home page)</label><textarea id="aChapo" rows="2" maxlength="260"></textarea>
+<label>Cover photo</label>
+<div class="cover"><img id="coverImg" alt="" hidden><div><button class="sm" type="button" id="coverBtn">Choose a photo</button> <button class="sm" type="button" id="coverDel" hidden>Remove</button><input id="coverFile" type="file" accept="image/*" hidden><p class="note" style="margin:.4rem 0 0">Cropped to a wide format. Without a photo, a default picture is used.</p></div></div>
+</div>
+<div class="box" style="margin-top:1.4rem"><h2>Content</h2><div id="blocks"></div>
+<div class="addrow"><button class="sm" type="button" data-add="p">+ Paragraph</button><button class="sm" type="button" data-add="h">+ Subtitle</button><button class="sm" type="button" data-add="img">+ Photo</button><button class="sm" type="button" data-add="q">+ Quote</button><button class="sm" type="button" data-add="link">+ Button link</button></div>
+<input id="blkFile" type="file" accept="image/*" hidden></div>
+<div class="tools" style="margin-top:1.2rem"><a class="btn primary" id="prev" href="#" target="_blank">Preview</a> <button class="btn" id="feat" type="button">Copy for front page</button> <button class="sm" id="pub" type="button">Copy for publication</button> <button class="btn" id="go" type="button">Publish on the site</button> <button class="btn" id="goF" type="button">Publish on the front page</button> <button class="sm" id="goS" type="button">Publish settings</button> <a class="sm" href="index.html">Back to home</a></div>
+<p class="note" id="msg" role="status"></p>
+<textarea id="out" class="outbox" rows="6" hidden readonly></textarea>
+<p class="note">To publish: press the button, then paste the text in this chat (or save it as a .txt file and attach it). The article goes in first position on the home page.</p>
+</section></div></main>
+<footer id="site-footer"></footer>
+<script src="data/articles.js"></script><script src="assets/js/common.js"></script><script src="assets/js/publish.js"></script><script src="assets/js/write.js"></script>
+</body></html>

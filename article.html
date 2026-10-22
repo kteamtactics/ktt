@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>KTT - Article</title>
+<meta name="description" content="Kill Team analysis and strategy article."><meta property="og:title" content="KTT - Article"><meta property="og:description" content="Kill Team analysis and strategy article."><meta property="og:type" content="website"><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap"><article class="article" id="art"></article></div></main>
+<footer id="site-footer"></footer>
+<script src="data/articles.js"></script><script src="assets/js/common.js"></script>
+<script>
+const Q=new URLSearchParams(location.search),id=Q.get("id");let a=KTT.articles.find(x=>x.id===id),isDraft=false;
+if(!a&&Q.get("draft")&&KTT.own.on){try{a=JSON.parse(localStorage.getItem("ktt-article:"+Q.get("draft")));isDraft=!!a;if(a){a.img=a.img||"assets/img/art-news.svg";a.alt=a.alt||a.title}}catch(e){}}
+if(!a)$("art").innerHTML='<h1>Article not found</h1><p><a href="index.html">Back to home</a></p>';
+else{document.title=(a.title||"Draft")+" | KTT";const d=document.querySelector('meta[name=description]');if(d)d.content=a.chapo||"";
+const photo=/^data:/.test(a.img||"")?" photo":"";
+$("art").innerHTML=(isDraft?'<p class="note">Draft preview (only you can see this). <a href="write.html?edit='+esc(a.id)+'">Back to the editor</a></p>':"")+`<p class="meta"><span class="pill c">${esc(a.tag||"")}</span><span class="pill">${esc(a.date||"")}</span></p><h1>${esc(a.title||"")}</h1><p class="chapo">${esc(a.chapo||"")}</p><img class="hero-img${photo}" src="${esc(a.img)}" alt="${esc(a.alt||a.title||"")}">`+(a.body||[]).map(b=>b.p?`<p>${esc(b.p)}</p>`:b.h?`<h2>${esc(b.h)}</h2>`:b.q?`<blockquote>${esc(b.q)}</blockquote>`:b.img?`<figure class="pic"><img src="${esc(b.img[0])}" alt="${esc(b.img[1]||"")}">${b.img[1]?`<figcaption>${esc(b.img[1])}</figcaption>`:""}</figure>`:b.link?`<p><a class="btn primary" href="${esc(b.link[1])}">${esc(b.link[0])}</a></p>`:"").join("")+'<p><a href="index.html">&larr; All articles</a></p>'}
+if(a&&!isDraft&&KTT.own.on){const eb=document.createElement("a");eb.className="btn";eb.style.cssText="margin:0 0 1rem;display:inline-block";eb.href="#";eb.textContent="Edit this article";eb.onclick=ev=>{ev.preventDefault();const k="ktt-article:"+a.id;try{if(!localStorage.getItem(k)){localStorage.setItem(k,JSON.stringify({id:a.id,tag:a.tag||"",date:a.date||"",title:a.title,chapo:a.chapo||"",img:/^assets\//.test(a.img||"")?a.img:(a.img||""),alt:a.alt||"",body:JSON.parse(JSON.stringify(a.body||[])),published:true}));let ix=[];try{ix=JSON.parse(localStorage.getItem("ktt-articles-index")||"[]")}catch(e){}ix=ix.filter(x=>x.id!==a.id);ix.unshift({id:a.id,title:a.title,updated:Date.now()});localStorage.setItem("ktt-articles-index",JSON.stringify(ix))}}catch(e){}location.href="write.html?edit="+encodeURIComponent(a.id)};$("art").prepend(eb);if(new URLSearchParams(location.search).get("edit"))eb.onclick({preventDefault(){}});const e=document.createElement("div");e.style.cssText="position:relative;height:2rem";$("art").prepend(e);KTT.own.btn(e,"a:"+a.id)}
+</script></body></html>

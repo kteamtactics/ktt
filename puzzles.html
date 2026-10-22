@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kill Team tactical puzzles | KTT</title>
+<meta name="description" content="Kill Team tactical puzzles: find the one winning line on a small board."><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Tactical puzzles</h1>
+<p class="sub" style="margin-top:-.4rem">A small board, a mission, one winning line. Can you find it? <a href="puzzles-classic.html">Free play: pick any two teams</a></p>
+<div class="rgrid" id="rgrid"></div></div></main>
+<footer id="site-footer"></footer>
+<script src="data/site.js"></script><script src="data/teams.js"></script><script src="data/pzboards.js"></script><script src="data/ops.js"></script><script src="data/pzlist.js"></script><script src="assets/js/common.js"></script><script src="assets/js/pz2.js"></script>
+<script>
+(function(){let h="";const own=KTT.own.on;
+ if(own){h+='<a class="rcard addcard" href="pzmaker.html?new"><span class="plus">+</span><b>Add a puzzle</b><small>Only visible to you</small></a>';
+  let ix=[];try{ix=JSON.parse(localStorage.getItem("ktt-pz2-index")||"[]")}catch(e){}
+  ix.forEach(d=>{h+=`<a class="rcard draft" data-did="${esc(d.id)}" href="pzmaker.html?edit=${esc(d.id)}"><span class="rtag">Draft - only you</span><h3>${esc(d.title||"Untitled puzzle")}</h3><p>Click to keep working</p></a>`})}
+ (KTT.pzs||[]).filter(z=>KTT.own.visible("p:"+z.id)).forEach(z=>{const b=(KTT.pzBoards.find(x=>x.id===z.board)||{}).name||"";h+=`<a class="rcard" data-oid="p:${esc(z.id)}" href="puzzle.html?id=${encodeURIComponent(z.id)}"><span class="rtag">Puzzle</span><h3>${esc(z.title)}</h3><p>${esc(z.tA)} vs ${esc(z.tB)}</p><small>${esc(b)}${z.created?" - "+esc(z.created):""}</small></a>`});
+ $("rgrid").innerHTML=h||'<p class="empty">No puzzle published yet.</p>';
+ if(own)document.querySelectorAll("#rgrid [data-did]").forEach(c=>PZ2.draftBtn(c,c.dataset.did));
+ if(own)document.querySelectorAll("#rgrid [data-oid]").forEach(c=>KTT.own.btn(c,c.dataset.oid))})();
+</script></body></html>

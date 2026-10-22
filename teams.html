@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kill Team teams, operatives and weapon stats | KTT</title>
+<meta name="description" content="Operatives, stats and weapon profiles for all 47 Kill Team kill teams, classified and declassified."><meta property="og:title" content="Kill Team teams, operatives and weapon stats | KTT"><meta property="og:description" content="Operatives, stats and weapon profiles for all 47 Kill Team kill teams, classified and declassified."><meta property="og:type" content="website"><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Teams</h1>
+<label for="teamSel">Kill team</label><select id="teamSel"></select>
+<div id="fiche"></div><div id="teamOut"></div></div></main>
+<footer id="site-footer"></footer>
+<script src="data/teams.js"></script><script src="assets/js/sprites.js"></script><script src="assets/js/common.js"></script>
+<script>
+opt($("teamSel"),teamOpts());
+function render(){const t=KTT.teams[$("teamSel").value];
+ $("fiche").innerHTML=`<div class="tcard"><div class="tspr"><img src="assets/img/team-${t.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}.svg" alt="Pixel art of the ${esc(t.name)} kill team" width="224" height="288"></div><div><span class="pill ${t.status==="classified"?"c":""}">${t.status}</span><span class="pill">${esc(t.archetypes.join(" / "))}</span><h2>${esc(t.name)}</h2><p class="note">${t.operatives.length} datacards</p></div></div>`;
+ $("teamOut").innerHTML=t.operatives.map((o,oi)=>`<div class="op"><h3>${esc(o.name)}</h3>
+ <div class="stats"><span>APL <b>${o.apl}</b></span><span>Move <b>${o.move}"</b></span><span>Save <b>${o.save}+</b></span><span>Wounds <b>${o.wounds}</b></span></div>
+ <div class="wide"><table><tr><th>Weapon</th><th class="n">Atk</th><th class="n">Hit</th><th class="n">Dmg</th><th></th></tr>
+ ${o.weapons.map((w,wi)=>`<tr><td>${esc(w.n)}</td><td class="n">${w.atk}</td><td class="n">${w.hit}+</td><td class="n">${w.dmg}/${w.crit}</td><td class="n"><a class="sm" href="calculator.html?t=${$("teamSel").value}&o=${oi}&w=${wi}">Calculate</a></td></tr>`).join("")}
+ </table>${o.weapons.length?"":'<p class="note">No weapons.</p>'}</div></div>`).join("")}
+$("teamSel").onchange=()=>{history.replaceState(null,"","#"+$("teamSel").value);render()};
+const h=+location.hash.slice(1);if(h>=0&&h<KTT.teams.length)$("teamSel").value=h;render();
+</script></body></html>

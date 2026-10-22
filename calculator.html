@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kill Team damage calculator | KTT</title>
+<meta name="description" content="Free Kill Team damage calculator: expected damage and kill chance for any shooting attack, plus a melee duel simulator."><meta property="og:title" content="Kill Team damage calculator | KTT"><meta property="og:description" content="Free Kill Team damage calculator: expected damage and kill chance for any shooting attack, plus a melee duel simulator."><meta property="og:type" content="website"><meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css"></head><body>
+<header id="site-header"></header>
+<main><div class="wrap page"><h1>Damage calculator</h1>
+<div class="tabs" id="mode"><button data-m="shoot" aria-selected="true">Shooting</button><button data-m="melee" aria-selected="false">Melee duel</button></div>
+<section id="m-shoot" style="margin-top:1.2rem"><div class="cols">
+<div class="box"><h2>Attacker</h2>
+<label for="aT">Team</label><select id="aT"></select>
+<label for="aO">Operative</label><select id="aO"></select>
+<label for="aW">Weapon</label><select id="aW"></select>
+<div class="row"><div><label for="atk">Attacks</label><input id="atk" type="number" min="1" max="12" value="4"></div>
+<div><label for="hit">Hit</label><input id="hit" type="number" min="2" max="6" value="3"></div>
+<div><label for="dmg">Damage</label><input id="dmg" type="number" min="0" value="3"></div>
+<div><label for="crit">Crit dmg</label><input id="crit" type="number" min="0" value="4"></div></div>
+<div class="row"><div><label for="acc">Accurate</label><input id="acc" type="number" min="0" max="4" value="0"></div>
+<div><label for="leth">Lethal (x+)</label><input id="leth" type="number" min="0" max="6" value="0"></div>
+<div><label for="prc">Piercing</label><input id="prc" type="number" min="0" max="3" value="0"></div>
+<div><label for="pcr">Piercing Crits</label><input id="pcr" type="number" min="0" max="3" value="0"></div>
+<div><label for="dev">Devastating</label><input id="dev" type="number" min="0" max="6" value="0"></div></div>
+<div class="chk"><label><input id="bal" type="checkbox">Balanced</label><label><input id="cea" type="checkbox">Ceaseless</label><label><input id="rnd" type="checkbox">Rending</label><label><input id="pun" type="checkbox">Punishing</label><label><input id="sev" type="checkbox">Severe</label><label><input id="sat" type="checkbox">Saturate</label></div>
+<div class="row"><div><label for="dist">Distance (in)</label><input id="dist" type="number" min="0" max="60" placeholder="any"></div><div><label>Weapon range</label><p class="auto" id="rng" style="margin:.35rem 0 0"></p></div></div></div>
+<div class="box"><h2>Target</h2>
+<label for="dT">Team</label><select id="dT"></select>
+<label for="dO">Operative</label><select id="dO"></select>
+<div class="row"><div><label for="sv">Save</label><input id="sv" type="number" min="2" max="6" value="3"></div>
+<div><label for="wd">Wounds</label><input id="wd" type="number" min="1" value="12"></div>
+<div><label for="dd" title="Net dice after Piercing; edit freely">Defence dice (net)</label><input id="dd" type="number" min="0" max="6" value="3"></div></div>
+<label for="pmod">Defender vs Piercing</label><select id="pmod"><option value="0">Normal</option><option value="1">Worsen Piercing by 1</option><option value="9">Ignore Piercing</option></select>
+<p class="auto" id="phint"></p>
+<label><input id="cov" type="checkbox">In cover</label>
+<div class="res"><div><div class="big" id="rE">0</div><small>Expected damage</small></div><div><div class="big" id="rK">0%</div><small>Chance to incapacitate</small></div></div>
+<div class="bars" id="bars" aria-label="Damage distribution"></div></div>
+</div></section>
+<section id="m-melee" hidden style="margin-top:1.2rem"><div class="cols">
+<div class="box"><h2>Attacker</h2>
+<label for="xT">Team</label><select id="xT"></select><label for="xO">Operative</label><select id="xO"></select><label for="xW">Melee weapon</label><select id="xW"></select>
+<div class="row"><div><label for="xa">Attacks</label><input id="xa" type="number" min="1" max="12" value="4"></div><div><label for="xh">Hit</label><input id="xh" type="number" min="2" max="6" value="3"></div><div><label for="xd">Dmg</label><input id="xd" type="number" min="0" value="4"></div><div><label for="xc">Crit</label><input id="xc" type="number" min="0" value="5"></div><div><label for="xl">Lethal</label><input id="xl" type="number" min="0" max="6" value="0"></div><div><label for="xwd">Wounds</label><input id="xwd" type="number" min="1" value="12"></div></div>
+<div class="chk"><label><input id="xbal" type="checkbox">Balanced</label><label><input id="xcea" type="checkbox">Ceaseless</label><label><input id="xbru" type="checkbox">Brutal</label><label><input id="xrnd" type="checkbox">Rending</label><label><input id="xsev" type="checkbox">Severe</label></div></div>
+<div class="box"><h2>Defender (retaliates)</h2>
+<label for="yT">Team</label><select id="yT"></select><label for="yO">Operative</label><select id="yO"></select><label for="yW">Melee weapon</label><select id="yW"></select>
+<div class="row"><div><label for="ya">Attacks</label><input id="ya" type="number" min="1" max="12" value="4"></div><div><label for="yh">Hit</label><input id="yh" type="number" min="2" max="6" value="3"></div><div><label for="yd">Dmg</label><input id="yd" type="number" min="0" value="4"></div><div><label for="yc">Crit</label><input id="yc" type="number" min="0" value="5"></div><div><label for="yl">Lethal</label><input id="yl" type="number" min="0" max="6" value="0"></div><div><label for="ywd">Wounds</label><input id="ywd" type="number" min="1" value="12"></div></div>
+<div class="chk"><label><input id="ybal" type="checkbox">Balanced</label><label><input id="ycea" type="checkbox">Ceaseless</label><label><input id="ybru" type="checkbox">Brutal</label><label><input id="yrnd" type="checkbox">Rending</label><label><input id="ysev" type="checkbox">Severe</label></div></div>
+</div>
+<div class="duel" id="dres"></div>
+<p class="note">Both roll, then alternate strike or block, attacker first. Each player picks the action with the biggest immediate swing, and always takes a killing strike.</p></section>
+</div></main>
+<footer id="site-footer"></footer>
+<script src="data/teams.js"></script><script src="data/rules.js"></script><script src="assets/js/common.js"></script><script src="assets/js/dice.js"></script>
+<script src="assets/js/calc.js"></script>
+</body></html>
