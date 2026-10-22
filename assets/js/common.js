@@ -6,7 +6,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 KTT.social={reddit:"https://www.reddit.com/user/KillTeamTactics/",patreon:"https://www.patreon.com/cw/KillTeamTactics",instagram:""};
 const NAV=[["index.html","Home"],["teams.html","Teams"],["calculator.html","Calculator"],["analysis.html","Battle analysis"],["quiz.html","Quiz"],["puzzles.html","Puzzles"]];
 (function(){ // favicon on every page (files: assets/img/favicon.png, assets/img/apple-touch-icon.png)
-  [["icon","assets/img/favicon.png?v=2"],["apple-touch-icon","assets/img/apple-touch-icon.png?v=2"]].forEach(a=>{if(document.querySelector('link[rel="'+a[0]+'"]'))return;const l=document.createElement("link");l.rel=a[0];l.href=a[1];if(a[0]==="icon")l.type="image/png";document.head.appendChild(l)});
+  [["icon","assets/img/favicon.png?v=3"],["apple-touch-icon","assets/img/apple-touch-icon.png?v=3"]].forEach(a=>{if(document.querySelector('link[rel="'+a[0]+'"]'))return;const l=document.createElement("link");l.rel=a[0];l.href=a[1];if(a[0]==="icon")l.type="image/png";document.head.appendChild(l)});
 })();
 (function(){
   const cur=(location.pathname.split("/").pop()||"index.html");
@@ -59,15 +59,18 @@ const cellPos=(m,name)=>{const g=m.go||0,sa=m.sa?1:0,c=name.charCodeAt(0)-65,r=+
 // To remove something for everyone, delete it in the data files (data/articles.js, data/news.js, data/reports.js, data/games.js, assets quizbank).
 KTT.own=(function(){
  const g=k=>{try{return localStorage.getItem(k)}catch(e){return null}},st=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
- const q=new URLSearchParams(location.search);
- if(q.get("owner")==="1"){st("ktt-owner","1");window.name="ktt-owner"}
+ // Owner access needs a password (only its SHA-256 fingerprint is stored here). Real protection for publishing is your GitHub token.
+ const OH="89d92efa0d21e1db2ff427115d0cd3fec138cc736e7cc7c29c025151ad63e27d",q=new URLSearchParams(location.search);
+ const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)))].map(x=>x.toString(16).padStart(2,"0")).join("");
+ const login=async()=>{const pw=prompt("Owner password");if(pw==null)return false;let h="";try{h=await sha(pw.trim())}catch(e){}if(h===OH){st("ktt-owner",OH);window.name="ktt-owner:"+OH;return true}alert("Wrong password");return false};
  if(q.get("owner")==="0"){st("ktt-owner",null);window.name=""}
- const on=g("ktt-owner")==="1"||window.name==="ktt-owner";
+ if(q.get("owner")==="1"&&g("ktt-owner")!==OH){setTimeout(async()=>{if(await login()){q.delete("owner");location.replace(location.pathname+(q.toString()?"?"+q:"")+location.hash)}else{q.delete("owner");history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:""))}},50)}
+ const on=g("ktt-owner")===OH||window.name==="ktt-owner:"+OH;
  let H=[];try{H=JSON.parse(g("ktt-hidden")||"[]")}catch(e){}
  const save=()=>st("ktt-hidden",JSON.stringify(H));
  const o={on,list:()=>H.slice(),has:id=>H.includes(id),visible:id=>on||!H.includes(id),
   hide(id,label){if(!H.includes(id)){H.push(id);save()}if(label){let L={};try{L=JSON.parse(g("ktt-hidden-lbl")||"{}")}catch(e){}L[id]=String(label).slice(0,140);st("ktt-hidden-lbl",JSON.stringify(L))}},label(id){try{return JSON.parse(g("ktt-hidden-lbl")||"{}")[id]||""}catch(e){return ""}},restore(id){H=H.filter(x=>x!==id);save()},
-  set(v){st("ktt-owner",v?"1":null);window.name=v?"ktt-owner":"";},
+  set(v){if(v){login().then(ok=>ok&&location.reload());return"wait"}st("ktt-owner",null);window.name="";},login,
   // adds a two-step remove / restore button to a card or any element
   btn(el,id,label){const hidden=H.includes(id),b=document.createElement("button");b.type="button";b.className="own-del"+(hidden?" restore":"");b.textContent=hidden?"Restore":"Remove";let sure=0;
    b.onclick=e=>{e.preventDefault();e.stopPropagation();if(hidden){o.restore(id);location.reload();return}if(!sure){sure=1;b.textContent="Sure? Click again";b.classList.add("sure");setTimeout(()=>{sure=0;b.textContent="Remove";b.classList.remove("sure")},3500);return}o.hide(id,label||(el.querySelector("h1,h2,h3,.t")||el).textContent.trim().replace(/\s+/g," ").replace(/(Remove|Restore)$/,"").slice(0,100));location.reload()};
@@ -75,7 +78,7 @@ KTT.own=(function(){
  return o})();
 (function(){const f=document.getElementById("site-footer");if(!f)return;const w=f.firstElementChild;
  if(w)w.insertAdjacentHTML("beforeend",' &middot; <a href="#" id="ownTogF" class="muted-link">'+(KTT.own.on?"Exit owner mode":"Owner mode")+'</a>');
- const t=document.getElementById("ownTogF");if(t)t.onclick=e=>{e.preventDefault();KTT.own.set(!KTT.own.on);location.reload()};
+ const t=document.getElementById("ownTogF");if(t)t.onclick=e=>{e.preventDefault();if(KTT.own.on){KTT.own.set(false);location.reload()}else KTT.own.set(true)};
  if(!KTT.own.on)return;
  const bar=document.createElement("div");bar.className="own-bar";const n=KTT.own.list().length;
  bar.innerHTML='<b>Owner mode</b><span>Removed here (only in your browser): '+n+'</span><button type="button" id="ownCopy">Removal list</button>'+(n?'<button type="button" id="ownRst">Restore all</button><button type="button" id="ownClr" title="Forget the list (use once I have deleted the items for real)">Clear list</button>':'')+'<button type="button" id="ownOff">Exit</button><textarea id="ownTa" readonly hidden></textarea>';
