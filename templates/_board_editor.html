@@ -1,0 +1,70 @@
+<div class="ed" id="editor">
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<div class="board-click" id="ed-board"></div>
+<p class="small" id="ed-hint">Choose a tool on the right, then click on the map.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<div class="panel">
+<div class="row">
+<label>Map<select id="ed-map">{% for mp in maps %}<option value="{{ mp.id }}">{{ mp.name }}</option>{% endfor %}</select></label>
+<label>Type<select id="ed-mode"><option value="moments">Battle analysis (moments)</option><option value="steps">Tactics concept (steps)</option><option value="puzzle">Your move (puzzle)</option></select></label>
+</div>
+<label>Board title (optional)<input id="ed-title" placeholder="The game in 5 moments"></label>
+<label data-nopuzzle>Deployment text (optional)<input id="ed-deploy" placeholder="Starting positions."></label>
+<div class="row" data-puzzle>
+<label>Goal<input id="ed-goal" placeholder="Score 2 VP"></label>
+<label>VP to win<input id="ed-vpgoal" type="number" min="0" value="2"></label>
+</div>
+<label data-puzzle>Question<textarea id="ed-question" placeholder="What do you do?"></textarea></label>
+<div class="row">
+<label>Side A team<select id="ed-ta"><option value="">—</option>{% for t in teams.values()|sort(attribute='name') %}<option value="{{ t.slug }}">{{ t.name }}</option>{% endfor %}</select></label>
+<label>Player A<input id="ed-pa"></label>
+</div>
+<div class="row">
+<label>Side B team<select id="ed-tb"><option value="">—</option>{% for t in teams.values()|sort(attribute='name') %}<option value="{{ t.slug }}">{{ t.name }}</option>{% endfor %}</select></label>
+<label>Player B<input id="ed-pb"></label>
+</div>
+</div>
+
+<div class="panel">
+<b class="label" style="color:var(--text)">Operatives (deployment)</b>
+<div class="row">
+<label>Short code<input id="ed-uid" maxlength="3" placeholder="SH"></label>
+<label>Side<select id="ed-uside"><option>A</option><option>B</option></select></label>
+<label style="flex:2">Name<input id="ed-uname" placeholder="Shas'vre"></label>
+</div>
+<div class="row"><button class="btn sm" type="button" id="ed-uadd">Add operative</button><button class="btn sm ghost" type="button" data-tool="place">Move at deployment</button><button class="btn sm ghost" type="button" data-tool="obj">Add objective</button></div>
+<label class="small" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="ed-snap" checked> Snap to the centre of the square (writes square names like C4)</label>
+<div class="list" id="ed-units"></div>
+</div>
+
+<div class="panel">
+<b class="label" style="color:var(--text)">Steps</b>
+<div class="list" id="ed-steps"></div>
+<div class="row"><button class="btn sm" type="button" id="ed-sadd">Add step</button><button class="btn sm ghost" type="button" id="ed-sdel">Delete step</button><button class="btn sm ghost" type="button" id="ed-sclear">Clear its actions</button></div>
+<div id="ed-step" style="display:flex;flex-direction:column;gap:12px">
+<div class="row">
+<label>Label<input id="ed-slabel" placeholder="Turning point 2"></label>
+<label>VP scored<input id="ed-svp" type="number" min="0"></label>
+</div>
+<div class="row" data-puzzle>
+<label>Right action<select id="ed-saction"><option value="">—</option><option value="reposition">Reposition</option><option value="dash">Dash</option><option value="charge">Charge</option><option value="fight">Fight</option><option value="shoot">Shoot</option><option value="loot">Loot</option><option value="fall_back">Fall back</option></select></label>
+<label>With operative<input id="ed-sunit" maxlength="3" placeholder="AD"></label>
+</div>
+<label data-puzzle>Hint after a wrong answer (optional)<input id="ed-shint"></label>
+<label>Title<input id="ed-stitle"></label>
+<label>Text<textarea id="ed-stext"></textarea></label>
+<div class="row">
+<button class="btn sm ghost" type="button" data-tool="move">Move</button>
+<button class="btn sm ghost" type="button" data-tool="shoot">Shoot</button>
+<button class="btn sm ghost" type="button" data-tool="fight">Fight</button>
+<button class="btn sm ghost" type="button" data-tool="kill">Kill</button>
+<button class="btn sm ghost" type="button" data-tool="capture">Score objective</button>
+<button class="btn sm ghost" type="button" data-tool="setup">Silent move</button>
+</div>
+<p class="small">Move: click an operative, then each square of its path. Shoot / Fight: click the attacker, then the target. Silent move: repositions without an arrow (what happened between two moments).</p>
+</div>
+</div>
+<p class="small" id="ed-msg"></p>
+</div>
+</div>

@@ -1,0 +1,38 @@
+# SITE SETTINGS
+# Edit on GitHub with the pencil icon, then "Commit changes". The site updates about a minute later.
+
+title: KTT
+name: Kill Team Tactics
+tagline: How to get better at Kill Team?
+description: Tactics, battle analysis and team guides to get better at Warhammer 40,000 Kill Team.
+
+# Full address of the site, and the folder part of it (used for the 404 page and the sitemap).
+# If you buy your own domain later (e.g. https://killteamtactics.com), put it in "url" and set base_path to "/".
+url: https://kteamtactics.github.io/ktt
+base_path: /ktt/
+
+# Where the site lives on GitHub (used by owner mode to publish).
+github:
+  repo: kteamtactics/ktt
+  branch: main
+
+social:
+  patreon: https://www.patreon.com/cw/KillTeamTactics
+  reddit: https://www.reddit.com/user/KillTeamTactics/
+  instagram: ""          # paste the full link to show it
+
+newsletter:
+  title: One tactic a week, straight to your inbox.
+  pitch: Tactics, puzzles, battle analysis and news. One email, no spam.
+  # Fill "action" with the signup address given by your email service (Buttondown, MailerLite, Brevo...).
+  action: ""
+  field: email
+  # Used while "action" is empty: the visitor's mail app opens a ready-to-send signup message.
+  mailto: ugobocchi1@gmail.com
+
+# Google AdSense. Ads stay hidden until enabled is true and client is filled (e.g. ca-pub-1234567890123456).
+ads:
+  enabled: false
+  client: ""
+  slot_leaderboard: ""   # wide banner (728 x 90)
+  slot_rectangle: ""     # box (300 x 250)

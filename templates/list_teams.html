@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = "Teams" %}
+{% set description = "Every Kill Team kill team in 30 seconds: what it is good at, how it plays and how hard it is to pick up." %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">Teams</span>
+<h1>Every kill team, in 30 seconds.</h1>
+<p>What each team is good at, how it wants to play, and how hard it is to pick up. No stat tables.</p>
+</div>
+</section>
+
+<div class="wrap filters" data-filter-list data-default-status="classified">
+<div class="chips" role="group" aria-label="Filter by faction">
+<button type="button" class="chip" data-tag="all" aria-pressed="true">All</button>
+{% for t in tags %}<button type="button" class="chip" data-tag="{{ t|lower }}" aria-pressed="false">{{ t }}</button>{% endfor %}
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+<label class="sr" for="team-search">Search teams</label>
+<input id="team-search" class="search" type="search" placeholder="Search a team" data-search>
+<div class="seg" role="group" aria-label="Team list">
+<button type="button" data-status="classified" aria-pressed="true">Classified · {{ counts.classified }}</button>
+<button type="button" data-status="declassified" aria-pressed="false">Declassified · {{ counts.declassified }}</button>
+</div>
+</div>
+</div>
+
+{{ m.ad(site, 'leaderboard', 'ad-leader wrap') }}
+
+<section class="wrap" style="padding-top:28px;padding-bottom:72px">
+<div class="g4">
+{% for t in items %}{{ m.team_card(t, url) }}{% endfor %}
+</div>
+<p class="empty" data-empty hidden>No team matches. Try another filter.</p>
+</section>
+{% endblock %}

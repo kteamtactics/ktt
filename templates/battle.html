@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = doc.title %}
+{% set description = doc.standfirst or site.description %}
+{% set win = teams.get(doc.winner.team) if doc.winner else None %}
+{% set lose = teams.get(doc.loser.team) if doc.loser else None %}
+{% set og_image = doc.image %}
+{% block main %}
+<article>
+<div class="narrow article-head">
+<a class="crumb" href="{{ url('battle-analysis/') }}">← BATTLE ANALYSIS</a>
+{% if doc.event %}<span class="kicker">{{ doc.event }}</span>{% endif %}
+<h1>{{ doc.title }}</h1>
+<span class="meta">{{ doc.date_label }}{% if doc.video %} · <a href="{{ doc.video }}" rel="noopener">Watch the game</a>{% endif %}</span>
+{% if doc.image %}<figure class="article-image" style="margin:8px 0 0"><img class="pxi" src="{{ url(doc.image) }}" alt="{{ doc.image_alt or '' }}"></figure>{% endif %}
+<div class="facts">
+{% if doc.winner %}<div><span class="label">Winner</span><b>{{ doc.winner.player }}{% if win %} · {{ win.name }}{% endif %}</b></div>{% endif %}
+{% if doc.loser %}<div><span class="label">Opponent</span><b>{{ doc.loser.player }}{% if lose %} · {{ lose.name }}{% endif %}</b></div>{% endif %}
+{% if doc.score %}<div><span class="label">Score</span><b>{{ doc.score }}</b></div>{% endif %}
+{% if doc.map_name %}<div><span class="label">Map</span><b>{{ doc.map_name }}</b></div>{% endif %}
+</div>
+<div class="prose" style="padding-top:8px">{{ doc.body_html|safe }}</div>
+{% if doc.lesson %}
+<div class="takeaway" style="margin-top:0"><span class="kicker">The lesson</span><p>{{ doc.lesson }}</p></div>
+{% endif %}
+</div>
+
+<div style="padding-top:40px">{{ m.board(doc) }}</div>
+
+<div class="narrow">
+{% if doc.teams %}
+<div style="padding-top:32px;display:flex;flex-direction:column;gap:14px">
+<span class="label">Teams in this game</span>
+<div class="teams-in">{% for slug in doc.teams %}{% set t = teams[slug] %}<a href="{{ url(t.path) }}"><img class="pxi" src="{{ url(t.sprite) }}" alt=""><span>{{ t.name }}</span></a>{% endfor %}</div>
+</div>
+{% endif %}
+{{ m.ad(site, 'leaderboard', 'ad-in') }}
+<div class="article-end"></div>
+</div>
+</article>
+
+{% if more %}
+<section class="section top-line" style="margin-top:48px">
+<div class="wrap">
+<div class="section-head"><h2>More games</h2><a href="{{ url('battle-analysis/') }}">See all →</a></div>
+<div class="g3">{% for d in more %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+</div>
+</section>
+{% endif %}
+{{ m.newsletter(site, url) }}
+{% endblock %}
+{% block scripts %}{% if doc.scene_json %}<script src="{{ url('js/board.js') }}" defer></script>{% endif %}{% endblock %}

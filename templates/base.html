@@ -1,0 +1,75 @@
+{% import "macros.html" as m %}
+{% set page_title = (title ~ " · " ~ site.title) if title else (site.title ~ " · " ~ site.name) %}
+{% set page_desc = description or site.description %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ page_desc }}">
+<link rel="canonical" href="{{ site.url }}/{{ page_path }}">
+<meta property="og:site_name" content="{{ site.title }} · {{ site.name }}">
+<meta property="og:title" content="{{ title or site.name }}">
+<meta property="og:description" content="{{ page_desc }}">
+<meta property="og:type" content="{{ 'article' if doc and doc.date else 'website' }}">
+<meta property="og:url" content="{{ site.url }}/{{ page_path }}">
+{% if og_image %}<meta property="og:image" content="{{ site.url }}/{{ og_image|trim('/') }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B0B0C">
+<link rel="icon" href="{{ url('favicon.ico') }}" sizes="any">
+<link rel="icon" type="image/png" href="{{ url('img/favicon.png') }}">
+<link rel="apple-touch-icon" href="{{ url('img/apple-touch-icon.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Silkscreen&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url('css/site.css') }}">
+{% if site.ads and site.ads.enabled and site.ads.client %}
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.ads.client }}" crossorigin="anonymous"></script>
+{% endif %}
+{% block head %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+<div class="wrap">
+<a class="logo" href="{{ url('') }}" aria-label="KTT, Kill Team Tactics, home">
+{{ m.logo() }}
+<span class="logo-text"><b>KTT</b><small>KILL TEAM TACTICS</small></span>
+</a>
+<nav class="nav" id="nav" aria-label="Main">
+<a href="{{ url('') }}"{% if section in ('home', 'news') %} aria-current="page"{% endif %}>News</a>
+<a href="{{ url('tactics/') }}"{% if section == 'tactics' %} aria-current="page"{% endif %}>Tactics</a>
+<a href="{{ url('battle-analysis/') }}"{% if section == 'battle-analysis' %} aria-current="page"{% endif %}>Battle analysis</a>
+<a href="{{ url('teams/') }}"{% if section == 'teams' %} aria-current="page"{% endif %}>Teams</a>
+{% for pg in nav_pages %}<a href="{{ url(pg.path) }}"{% if section == pg.section %} aria-current="page"{% endif %}>{{ pg.nav }}</a>
+{% endfor %}
+</nav>
+<div class="head-right">
+{% if site.newsletter and (site.newsletter.action or site.newsletter.mailto) %}<a class="btn" href="{{ url('') }}#newsletter">Subscribe</a>{% endif %}
+<button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4h16M2 10h16M2 16h16" stroke="currentColor" stroke-width="2"/></svg></button>
+</div>
+</div>
+</header>
+<main id="main">
+{% block main %}{% endblock %}
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="who">
+<b>KTT</b>
+<span>Unofficial fan site. Not affiliated with Games Workshop.</span>
+</div>
+<nav aria-label="Footer">
+{% if site.social.patreon %}<a href="{{ site.social.patreon }}" rel="noopener">Patreon</a>{% endif %}
+{% if site.social.reddit %}<a href="{{ site.social.reddit }}" rel="noopener">Reddit</a>{% endif %}
+{% if site.social.instagram %}<a href="{{ site.social.instagram }}" rel="noopener">Instagram</a>{% endif %}
+<a href="{{ url('news/') }}">All news</a>
+<a href="{{ url('teams/') }}">All teams</a>{% for pg in nav_pages %}<a href="{{ url(pg.path) }}">{{ pg.title }}</a>{% endfor %}
+</nav>
+</div>
+</footer>
+<script src="{{ url('js/site.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

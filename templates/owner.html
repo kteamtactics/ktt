@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% set title = "Owner mode" %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">Owner mode</span>
+<h1 style="font-size:40px">Write and publish.</h1>
+</div>
+</section>
+
+<div class="wrap owner" id="owner" data-repo="{{ site.github.repo }}" data-branch="{{ site.github.branch or 'main' }}">
+
+<div id="o-lock" class="o-card" hidden>
+<form id="o-unlock" hidden>
+<label>Password<input id="o-pass" type="password" autocomplete="current-password" required></label>
+<div class="row"><button class="btn" type="submit">Unlock</button><button class="btn ghost" type="button" id="o-forget">Use another GitHub key</button></div>
+</form>
+<form id="o-setup" hidden>
+<p class="small">First time on this device. Paste your GitHub key and choose a password. The key is stored on this device only, locked with your password.</p>
+<label>GitHub key (fine-grained token, repository <b>{{ site.github.repo }}</b>, Contents: read and write, Actions: read)<input id="o-token" type="password" autocomplete="off" required></label>
+<label>Choose a password<input id="o-newpass" type="password" autocomplete="new-password" minlength="6" required></label>
+<label>Type it again<input id="o-newpass2" type="password" autocomplete="new-password" minlength="6" required></label>
+<button class="btn" type="submit">Save and unlock</button>
+</form>
+<p class="small" id="o-lockmsg" role="status"></p>
+</div>
+
+<div id="o-app" hidden>
+<div class="o-bar">
+<div class="chips" role="tablist" aria-label="Sections">
+<button type="button" class="chip" data-sec="news" aria-pressed="true">News</button>
+<button type="button" class="chip" data-sec="tactics" aria-pressed="false">Tactics</button>
+<button type="button" class="chip" data-sec="battle-analysis" aria-pressed="false">Battle analysis</button>
+<button type="button" class="chip" data-sec="teams" aria-pressed="false">Teams</button>
+<button type="button" class="chip" data-sec="maps" aria-pressed="false">Maps</button>
+<button type="button" class="chip" data-sec="pages" aria-pressed="false">Pages (KTT…)</button>
+<button type="button" class="chip" data-sec="settings" aria-pressed="false">Site settings</button>
+</div>
+<div class="row" style="align-items:center">
+<span class="o-status" id="o-status" role="status"></span>
+<button class="btn sm ghost" type="button" id="o-lockbtn">Lock</button>
+</div>
+</div>
+
+<div id="o-list" class="o-list"></div>
+
+<div id="o-mapedit" hidden>
+<div class="row" style="justify-content:space-between;align-items:center">
+<button class="btn sm ghost" type="button" id="o-mapback">← Back to the maps</button>
+<span class="small" id="o-mappath">data/maps.json</span>
+</div>
+<div class="o-form" id="o-mapform"></div>
+<div id="o-mapgridwrap" hidden>
+<div class="row" style="align-items:center;gap:8px;margin:16px 0 10px">
+<span class="label">Paint with</span>
+<button type="button" class="chip" data-paint="." aria-pressed="true">Floor</button>
+<button type="button" class="chip" data-paint="#" aria-pressed="false">Wall</button>
+<button type="button" class="chip" data-paint="o" aria-pressed="false">Cover</button>
+<span class="small">Click or drag on the board.</span>
+</div>
+<div id="o-mapgrid" class="o-mapgrid"></div>
+</div>
+<div id="o-maprawwrap" hidden>
+<p class="small">This is a killzone map drawn from its numbers (terrain, walls, doors, objectives). Change the numbers below; the preview updates when you leave the box.</p>
+<textarea id="o-mapraw" class="o-raw"></textarea>
+</div>
+<div class="label" style="margin:16px 0 8px">Preview</div>
+<div id="o-mapprev" class="o-mapprev"></div>
+<div class="o-actions">
+<button class="btn" type="button" id="o-mapsave">Publish</button>
+<span style="flex:1"></span>
+<button class="btn ghost" type="button" id="o-mapdelete">Delete this map</button>
+</div>
+<p class="small" id="o-mapmsg" role="status"></p>
+</div>
+
+<div id="o-edit" hidden>
+<div class="row" style="justify-content:space-between;align-items:center">
+<button class="btn sm ghost" type="button" id="o-back">← Back to the list</button>
+<span class="small" id="o-path"></span>
+</div>
+<form id="o-form" class="o-form" autocomplete="off"></form>
+<div id="o-boardwrap" hidden>
+<div class="row" style="justify-content:space-between;align-items:center;margin-top:24px">
+<b class="label" style="color:var(--text)">Board</b>
+<button class="btn sm ghost" type="button" id="o-noboard">Remove the board</button>
+</div>
+{% include "_board_editor.html" %}
+</div>
+<button class="btn sm ghost" type="button" id="o-addboard" hidden>Add a board</button>
+<div class="o-actions">
+<button class="btn" type="button" id="o-save">Publish</button>
+<a class="btn ghost" id="o-view" href="#" target="_blank" rel="noopener" hidden>See the page</a>
+<span style="flex:1"></span>
+<button class="btn ghost" type="button" id="o-delete">Delete</button>
+</div>
+<div id="o-confirm" class="o-confirm" hidden>
+<p>Delete this page for good? It disappears from the site in about a minute.</p>
+<div class="row"><button class="btn" type="button" id="o-yes">Yes, delete it</button><button class="btn ghost" type="button" id="o-no">Cancel</button></div>
+</div>
+<p class="small" id="o-msg" role="status"></p>
+</div>
+</div>
+</div>
+<script>window.KTT_BASE = "{{ url('favicon.ico')[:-11] }}"; window.KTT_TEAMS = {{ teams_json|safe }};</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url('js/maps.js') }}"></script>
+<script src="{{ url('js/board.js') }}"></script>
+<script src="{{ url('js/vendor/js-yaml.min.js') }}"></script>
+<script src="{{ url('js/editor.js') }}"></script>
+<script src="{{ url('js/owner.js') }}"></script>
+{% endblock %}

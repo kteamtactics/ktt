@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set og_image = featured.image if featured and featured.image else None %}
+{% block main %}
+{{ m.ad(site, 'leaderboard', 'ad-leader wrap') }}
+
+<section class="wrap" style="padding-top:40px;padding-bottom:56px">
+<p class="label" style="margin:0 0 20px;font-size:12px;color:var(--muted)">{{ site.tagline }}</p>
+<div class="hero">
+{% if featured %}
+<a class="card hero-main" href="{{ url(featured.path) }}">
+{{ m.thumb(featured, url, teams) }}
+<div class="stack">
+<span class="kicker">{{ m.kicker(featured) }}</span>
+<h1 class="card-title">{{ featured.title }}</h1>
+{% if featured.standfirst %}<p>{{ featured.standfirst }}</p>{% endif %}
+<span class="meta">{{ featured.date_label }} · {{ featured.read_time }} min read</span>
+</div>
+</a>
+{% endif %}
+<div class="latest">
+<p class="label">Latest</p>
+{% for t in home_guides %}
+<a class="latest-item" href="{{ url(t.path) }}">
+<img class="pxi" src="{{ url(t.sprite) }}" alt="">
+<span><span class="kicker sm">Team guide · {{ t.faction }}</span><span class="card-title">{{ t.name }}: the full guide</span></span>
+</a>
+{% endfor %}
+{% for d in latest %}
+<a class="latest-item" href="{{ url(d.path) }}">
+<img class="pxi" src="{{ m.small_img(d, url, teams) }}" alt="">
+<span><span class="kicker sm">{{ m.kicker(d) }}</span><span class="card-title">{{ d.title }}</span></span>
+</a>
+{% endfor %}
+{{ m.ad(site, 'rectangle', 'ad-in') }}
+</div>
+</div>
+</section>
+
+{% if news %}
+<section class="section top-line">
+<div class="wrap">
+<div class="section-head"><h2>News</h2><a href="{{ url('news/') }}">All news →</a></div>
+<div class="g3">{% for d in news %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+</div>
+</section>
+{% endif %}
+
+{% if tactics %}
+<section class="section top-line">
+<div class="wrap">
+<div class="section-head"><h2>Tactics</h2><a href="{{ url('tactics/') }}">All tactics →</a></div>
+<p class="section-lead">One concept per article. A map, a few points, and what to remember at your next game.</p>
+<div class="g3">{% for d in tactics %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+</div>
+</section>
+{% endif %}
+
+{% if battle %}
+<section class="section alt">
+<div class="wrap">
+<div class="section-head"><h2>Battle analysis</h2><a href="{{ url('battle-analysis/') }}">All games →</a></div>
+<a class="ba-card" href="{{ url(battle.path) }}">
+<div class="ba-text">
+<span class="kicker sm">{{ battle.event or 'Battle analysis' }}</span>
+<h3 class="card-title">{{ battle.title }}</h3>
+{% if battle.standfirst %}<p>{{ battle.standfirst }}</p>{% endif %}
+<div class="stats-row">
+{% if battle.winner and teams.get(battle.winner.team) %}<div class="stat"><span class="label">Winner</span><b>{{ teams[battle.winner.team].name }}</b></div>{% endif %}
+{% if battle.map_name %}<div class="stat"><span class="label">Map</span><b>{{ battle.map_name }}</b></div>{% endif %}
+</div>
+</div>
+{% if battle.winner and battle.loser and teams.get(battle.winner.team) and teams.get(battle.loser.team) %}
+<div class="vs">
+<div class="vs-side"><div class="vs-box pix win"><img class="pxi" src="{{ url(teams[battle.winner.team].sprite) }}" alt="{{ teams[battle.winner.team].name }}"></div>{{ battle.winner.player }}</div>
+<span>VS</span>
+<div class="vs-side"><div class="vs-box pix"><img class="pxi" src="{{ url(teams[battle.loser.team].sprite) }}" alt="{{ teams[battle.loser.team].name }}"></div>{{ battle.loser.player }}</div>
+</div>
+{% endif %}
+</a>
+</div>
+</section>
+{% endif %}
+
+{% if home_teams %}
+<section class="section">
+<div class="wrap">
+<div class="section-head"><h2>Teams</h2><a href="{{ url('teams/') }}">All {{ team_count }} teams →</a></div>
+<div class="g6">
+{% for t in home_teams %}
+<a class="team-tile" href="{{ url(t.path) }}"><img class="pxi" src="{{ url(t.sprite) }}" alt=""><span class="card-title">{{ t.name }}</span></a>
+{% endfor %}
+</div>
+</div>
+</section>
+{% endif %}
+
+{{ m.newsletter(site, url) }}
+{% endblock %}

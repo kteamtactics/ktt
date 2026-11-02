@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>{{ site.url }}/</loc></url>
+{% for p in ['news/', 'tactics/', 'battle-analysis/', 'teams/'] %}<url><loc>{{ site.url }}/{{ p }}</loc></url>
+{% endfor %}
+{% for d in articles %}<url><loc>{{ site.url }}/{{ d.path }}</loc><lastmod>{{ d.date }}</lastmod></url>
+{% endfor %}
+{% for pg in nav_pages %}<url><loc>{{ site.url }}/{{ pg.path }}</loc></url>
+{% endfor %}
+{% for t in team_docs %}<url><loc>{{ site.url }}/{{ t.path }}</loc></url>
+{% endfor %}
+</urlset>

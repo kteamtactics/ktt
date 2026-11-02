@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /{{ site.base_path|trim('/') }}{{ '/' if site.base_path|trim('/') else '' }}owner/
+Sitemap: {{ site.url }}/sitemap.xml

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = "News" %}
+{% set description = "Kill Team news, releases and speculation." %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">News</span>
+<h1>What's new in Kill Team.</h1>
+<p>Releases, rules updates, new teams and what they could change.</p>
+</div>
+</section>
+{{ m.ad(site, 'leaderboard', 'ad-leader wrap') }}
+<section class="wrap" style="padding-top:40px;padding-bottom:72px">
+{% if items %}
+<div class="g3">{% for d in items %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+{% else %}
+<p class="empty">No news yet.</p>
+{% endif %}
+</section>
+{{ m.newsletter(site, url) }}
+{% endblock %}

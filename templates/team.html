@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = doc.name %}
+{% set description = doc.line or (doc.name ~ ": Kill Team guide.") %}
+{% set og_image = doc.sprite %}
+{% block main %}
+<section style="border-bottom:1px solid var(--line)">
+<div class="wrap team-hero">
+<div class="team-visual pix">
+<img class="pxi" src="{{ url(doc.sprite) }}" alt="{{ doc.name }} pixel art operative">
+{% if doc.status == 'declassified' %}<span class="badge grey">Declassified</span>{% endif %}
+</div>
+<div class="team-info">
+<a class="crumb" href="{{ url('teams/') }}">← ALL TEAMS</a>
+{% if doc.faction %}<span class="kicker">{{ doc.faction }}</span>{% endif %}
+<h1>{{ doc.name }}</h1>
+{% if doc.tags %}<div class="tags">{% for tag in doc.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</div>{% endif %}
+{% if doc.summary %}<p class="summary">{{ doc.summary }}</p>{% elif doc.line %}<p class="summary">{{ doc.line }}</p>{% else %}<p class="summary" style="color:var(--dim)">Guide coming soon.</p>{% endif %}
+<div class="team-facts">
+{% if doc.difficulty %}<div><span class="label">Difficulty</span><span class="diff" role="img" aria-label="Difficulty {{ doc.difficulty }} of 3">{% for i in range(1, 4) %}<i class="{{ 'on' if i <= doc.difficulty else '' }}"></i>{% endfor %}</span></div>{% endif %}
+{% if doc.plays_best %}<div><span class="label">Plays best</span><b>{{ doc.plays_best }}</b></div>{% endif %}
+{% if doc.good_for %}<div><span class="label">Good for</span><b>{{ doc.good_for }}</b></div>{% endif %}
+{% if doc.season %}<div><span class="label">Season</span><b>{{ doc.season }}{% if doc.released %} · {{ doc.released }}{% endif %}</b>{% if doc.season_info %}<span class="label" style="margin-top:4px">{{ doc.season_info }}</span>{% endif %}</div>{% endif %}
+{% if doc.archetypes %}<div><span class="label">Tac op archetypes</span><b>{{ doc.archetypes|join(' · ') }}</b></div>{% endif %}
+</div>
+{% if doc.ratings %}
+<div class="big-ratings">
+{% for r in doc.ratings %}<div><span class="label">{{ r.label }}</span>{{ m.stars(r.value, r.label|lower) }}</div>{% endfor %}
+</div>
+{% endif %}
+</div>
+</div>
+</section>
+
+<section class="wrap two-col">
+<div style="display:flex;flex-direction:column;gap:40px">
+{% if doc.strengths or doc.weaknesses %}
+<div class="glance">
+<h2 class="sec-h">At a glance</h2>
+<div class="sw">
+{% if doc.strengths %}<div class="sw-box"><h3>+ Best at</h3><ul>{% for s in doc.strengths %}<li>{{ s }}</li>{% endfor %}</ul></div>{% endif %}
+{% if doc.weaknesses %}<div class="sw-box weak"><h3>&minus; Worst at</h3><ul>{% for s in doc.weaknesses %}<li>{{ s }}</li>{% endfor %}</ul></div>{% endif %}
+</div>
+</div>
+{% endif %}
+{% if doc.rule_groups and doc.guide_published %}
+<div class="rules">
+<div class="rules-head">
+<h2 class="sec-h">The rules, in plain words</h2>
+<p>One line per rule. Check the full wording on your datacards when you play.</p>
+</div>
+<nav class="rules-jump" aria-label="Rule groups">{% for g in doc.rule_groups %}<a href="#{{ g.key }}">{{ g.label }} <span>{{ g['items']|length }}</span></a>{% endfor %}</nav>
+<div class="rule-grid">
+{% for g in doc.rule_groups if g.key != 'operatives' %}
+<section class="rule-card {{ 'wide' if g.key in ('faction','equipment') else '' }}" id="{{ g.key }}" aria-labelledby="h-{{ g.key }}">
+<h3 id="h-{{ g.key }}">{{ g.label }}</h3>
+<ul class="rl">
+{% for it in g['items'] %}<li><b>{{ it.name }}</b><span>{{ it.text }}</span></li>
+{% endfor %}
+</ul>
+</section>
+{% endfor %}
+</div>
+{% for g in doc.rule_groups if g.key == 'operatives' %}
+<section class="ops" id="operatives" aria-labelledby="h-operatives">
+<h3 class="ops-h" id="h-operatives">Operatives</h3>
+<div class="ops-grid">
+{% for o in g.ops %}
+<div class="op-card">
+{% if o.op %}<h4>{{ o.op }}</h4>{% endif %}
+<ul class="rl">
+{% for it in o['items'] %}<li><b>{{ it.name }}</b><span>{{ it.text }}</span></li>
+{% endfor %}
+</ul>
+</div>
+{% endfor %}
+</div>
+</section>
+{% endfor %}
+</div>
+{% endif %}
+{% if doc.guide_published %}
+{% if doc.body_html %}<div class="prose" style="padding-top:0">{{ doc.body_html|safe }}</div>{% endif %}
+{% else %}
+<div class="soon-box wip"><span class="kicker sm">Guide in progress</span><p>The rules of this team, in plain words, are being written. Subscribe to the newsletter to hear when the full guide is out.</p></div>
+{% endif %}
+{% if doc.related %}
+<div class="related">
+<h2>Related on KTT</h2>
+{% for d in doc.related %}
+<a class="related-item" href="{{ url(d.path) }}">
+<img class="pxi" src="{{ m.small_img(d, url, teams) }}" alt="">
+<span><span class="kicker sm">{{ m.kicker(d) }}</span><span class="card-title">{{ d.title }}</span></span>
+</a>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+<aside class="side-col">
+{{ m.ad(site, 'rectangle') }}
+{{ m.newsletter(site, url, True) }}
+</aside>
+</section>
+{% endblock %}

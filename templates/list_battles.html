@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = "Battle analysis" %}
+{% set description = "Real Kill Team tournament games, explained in a few key moments." %}
+{% set latest = items[0] if items else None %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">Battle analysis</span>
+<h1>Real tournament games, in 5 moments.</h1>
+</div>
+</section>
+
+<section class="wrap two-col" style="padding-top:40px">
+<div style="display:flex;flex-direction:column;gap:40px">
+{% if latest %}
+<a class="ba-card" href="{{ url(latest.path) }}">
+<div class="ba-text">
+<span class="kicker sm">Latest · {{ latest.event or 'Battle analysis' }}</span>
+<h2 class="card-title">{{ latest.title }}</h2>
+<div class="stats-row">
+{% if latest.score %}<div class="stat"><span class="label">Score</span><b>{{ latest.score }}</b></div>{% endif %}
+{% if latest.map_name %}<div class="stat"><span class="label">Map</span><b>{{ latest.map_name }}</b></div>{% endif %}
+<div class="stat"><span class="label">Published</span><b>{{ latest.date_label }}</b></div>
+</div>
+</div>
+{% if latest.winner and latest.loser and teams.get(latest.winner.team) and teams.get(latest.loser.team) %}
+<div class="vs">
+<div class="vs-side"><div class="vs-box pix win"><img class="pxi" src="{{ url(teams[latest.winner.team].sprite) }}" alt="{{ teams[latest.winner.team].name }}"></div>{{ latest.winner.player }}</div>
+<span>VS</span>
+<div class="vs-side"><div class="vs-box pix"><img class="pxi" src="{{ url(teams[latest.loser.team].sprite) }}" alt="{{ teams[latest.loser.team].name }}"></div>{{ latest.loser.player }}</div>
+</div>
+{% endif %}
+</a>
+{% endif %}
+
+{% if items|length > 1 %}
+<div>
+<div class="section-head" style="margin-bottom:16px"><h2 style="font-size:26px">More games</h2></div>
+{% for d in items[1:] %}
+<a class="game-row" href="{{ url(d.path) }}">
+<span class="l">
+{% if d.winner and teams.get(d.winner.team) %}<img class="pxi" src="{{ url(teams[d.winner.team].sprite) }}" alt="">{% endif %}
+<span style="display:flex;flex-direction:column;gap:4px"><span class="label">{{ d.event or '' }}{% if d.map_name %} · {{ d.map_name }}{% endif %}</span><span class="card-title">{{ d.title }}</span></span>
+</span>
+<span class="arrow">→</span>
+</a>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+<aside class="side-col">
+{{ m.ad(site, 'rectangle') }}
+{{ m.newsletter(site, url, True) }}
+</aside>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = "Tactics" %}
+{% set description = "One Kill Team concept per article: a map, a few points, and what to remember at your next game." %}
+{% set featured = items|selectattr('featured')|first %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">Tactics</span>
+<h1>One concept per article.</h1>
+<p>A map, a few points, and what to remember at your next game. Most articles end with a "Your move" puzzle.</p>
+</div>
+</section>
+
+{% if tags|length > 1 %}
+<div class="wrap filters" data-filter-list>
+<div class="chips" role="group" aria-label="Filter by concept">
+<button type="button" class="chip" data-tag="all" aria-pressed="true">All</button>
+{% for t in tags %}<button type="button" class="chip" data-tag="{{ t|lower }}" aria-pressed="false">{{ t }}</button>{% endfor %}
+</div>
+</div>
+{% endif %}
+
+{% if featured %}
+<section class="wrap" style="padding-top:28px">
+<a class="feature" href="{{ url(featured.path) }}">
+{{ m.thumb(featured, url, teams) }}
+<div class="stack">
+<span class="kicker sm">{{ featured.tag or 'Tactics' }} · Start here</span>
+<h2 class="card-title">{{ featured.title }}</h2>
+{% if featured.standfirst %}<p>{{ featured.standfirst }}</p>{% endif %}
+<span class="meta">{{ featured.date_label }} · {{ featured.read_time }} min read</span>
+</div>
+</a>
+</section>
+{% endif %}
+
+<section class="wrap" style="padding-top:40px;padding-bottom:56px">
+<div class="g3">
+{% for d in items %}{% if d is not sameas featured %}{{ m.card(d, url, teams) }}{% endif %}{% endfor %}
+</div>
+<p class="empty" data-empty hidden>Nothing here yet.</p>
+</section>
+{{ m.ad(site, 'leaderboard', 'ad-in wrap') }}
+{{ m.newsletter(site, url) }}
+{% endblock %}

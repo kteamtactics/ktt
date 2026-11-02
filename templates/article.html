@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = doc.title %}
+{% set description = doc.standfirst or site.description %}
+{% set og_image = doc.image %}
+{% set back = sections[doc.section] %}
+{% block main %}
+<article>
+<div class="narrow article-head">
+<a class="crumb" href="{{ url(back.url) }}">← {{ back.title|upper }}</a>
+<span class="kicker">{{ m.kicker(doc) }}</span>
+<h1>{{ doc.title }}</h1>
+{% if doc.standfirst %}<p class="standfirst">{{ doc.standfirst }}</p>{% endif %}
+<span class="meta">{{ doc.date_label }} · {{ doc.read_time }} min read</span>
+{% if doc.image and not doc.scene_json %}
+<figure class="article-image" style="margin:8px 0 0"><img class="pxi" src="{{ url(doc.image) }}" alt="{{ doc.image_alt or '' }}"></figure>
+{% endif %}
+</div>
+
+{% if doc.scene_json and doc.has_inline_board %}
+{% set parts = doc.body_html.split('<div data-board-slot></div>', 1) %}
+<div class="narrow prose">{{ parts[0]|safe }}</div>
+{{ m.board(doc) }}
+<div class="narrow prose">{{ parts[1]|safe if parts|length > 1 else '' }}</div>
+{% else %}
+<div class="narrow prose">{{ doc.body_html|safe }}</div>
+{{ m.board(doc) }}
+{% endif %}
+
+<div class="narrow">
+{% if doc.takeaway %}
+<div class="takeaway"><span class="kicker">What to remember</span><p>{{ doc.takeaway }}</p></div>
+{% endif %}
+{% if doc.teams %}
+<div style="padding-top:32px;display:flex;flex-direction:column;gap:14px">
+<span class="label">Teams in this article</span>
+<div class="teams-in">{% for slug in doc.teams %}{% set t = teams[slug] %}<a href="{{ url(t.path) }}"><img class="pxi" src="{{ url(t.sprite) }}" alt=""><span>{{ t.name }}</span></a>{% endfor %}</div>
+</div>
+{% endif %}
+{{ m.ad(site, 'leaderboard', 'ad-in') }}
+<div class="article-end"></div>
+</div>
+</article>
+
+{% if more %}
+<section class="section top-line" style="margin-top:48px">
+<div class="wrap">
+<div class="section-head"><h2>More {{ back.title }}</h2><a href="{{ url(back.url) }}">See all →</a></div>
+<div class="g3">{% for d in more %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+</div>
+</section>
+{% endif %}
+{{ m.newsletter(site, url) }}
+{% endblock %}
+{% block scripts %}{% if doc.scene_json %}<script src="{{ url('js/board.js') }}" defer></script>{% endif %}{% endblock %}
