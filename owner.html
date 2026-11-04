@@ -53,13 +53,15 @@
 <div class="o-form" id="o-mapform"></div>
 <div id="o-mapgridwrap" hidden>
 <div class="row" style="align-items:center;gap:8px;margin:16px 0 10px">
-<span class="label">Paint with</span>
-<button type="button" class="chip" data-paint="." aria-pressed="true">Floor</button>
-<button type="button" class="chip" data-paint="#" aria-pressed="false">Wall</button>
-<button type="button" class="chip" data-paint="o" aria-pressed="false">Cover</button>
-<button type="button" class="chip" data-paint="|w" aria-pressed="false">Wall between squares</button>
-<button type="button" class="chip" data-paint="|c" aria-pressed="false">Cover between squares</button>
-<span class="small">Click or drag on the board. Between squares: click near a line to add it, click it again to remove it.</span>
+<span class="label">Lines</span>
+<button type="button" class="chip" data-paint="|w" aria-pressed="true">Wall</button>
+<button type="button" class="chip" data-paint="|c" aria-pressed="false">Cover</button>
+<button type="button" class="chip" data-paint="|x" aria-pressed="false">Eraser</button>
+<span class="label" style="margin-left:12px">Whole squares</span>
+<button type="button" class="chip" data-paint="#" aria-pressed="false">Solid block</button>
+<button type="button" class="chip" data-paint="o" aria-pressed="false">Cover block</button>
+<button type="button" class="chip" data-paint="." aria-pressed="false">Empty square</button>
+<span class="small" style="flex-basis:100%">Click on a line between two squares, or drag along it. Click a line again to remove it.</span>
 </div>
 <div class="o-mapgridbox"><div id="o-mapgrid" class="o-mapgrid"></div><svg id="o-mapedges" class="o-mapedges" preserveAspectRatio="none"></svg></div>
 </div>

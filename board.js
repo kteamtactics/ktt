@@ -145,8 +145,8 @@
       m.rows.forEach(function (row, y) {
         for (var x = 0; x < row.length; x++) {
           var t = row[x];
-          if (t === "#") h += R(x, y, 1, 1, "#2b2b2b", ' stroke="#111" stroke-width=".06"');
-          else if (t === "o") h += R(x, y, 1, 1, "#8a6a3c", ' stroke="#4a3820" stroke-width=".06"');
+          if (t === "#") h += R(x, y, 1, 1, "#2b2b2b", ' stroke="#2b2b2b" stroke-width=".02"');
+          else if (t === "o") h += R(x, y, 1, 1, "#8a6a3c", ' stroke="#8a6a3c" stroke-width=".02"');
           else h += R(x, y, 1, 1, (x + y) % 2 ? "#cdc9b2" : "#d7d3bd");
         }
       });

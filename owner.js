@@ -358,7 +358,7 @@
 
 
   // ---------- maps ----------
-  var MAPFILE = "data/maps.json", maps = null, mapsSha = null, mapIdx = -1, paint = ".";
+  var MAPFILE = "data/maps.json", maps = null, mapsSha = null, mapIdx = -1, paint = "|w";
   function mapMsg(t, bad) { var m = $("o-mapmsg"); m.textContent = t; m.style.color = bad ? "#ff8a7a" : ""; }
   function openMaps() {
     $("o-mapedit").hidden = true; $("o-list").hidden = false;
@@ -450,7 +450,7 @@
       var key = ed.join(","); if (!first && key === last) return; last = key;
       var type = paint.charAt(1), list = cur.edges || (cur.edges = []);
       var i = list.findIndex(function (q) { return q[0] === ed[0] && q[1] === ed[1] && q[2] === ed[2]; });
-      if (first) edgeMode = i >= 0 && list[i][3] === type ? "remove" : "add";
+      if (first) edgeMode = type === "x" || (i >= 0 && list[i][3] === type) ? "remove" : "add";
       if (edgeMode === "remove") { if (i >= 0) list.splice(i, 1); }
       else if (i >= 0) list[i][3] = type; else list.push([ed[0], ed[1], ed[2], type]);
       drawEdges();
