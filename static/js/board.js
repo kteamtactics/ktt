@@ -145,10 +145,17 @@
       m.rows.forEach(function (row, y) {
         for (var x = 0; x < row.length; x++) {
           var t = row[x];
-          if (t === "#") h += R(x, y, 1, 1, "#2b2b2b", ' stroke="#111" stroke-width=".06"');
-          else if (t === "o") h += R(x, y, 1, 1, "#8a6a3c", ' stroke="#4a3820" stroke-width=".06"');
+          if (t === "#") h += R(x, y, 1, 1, "#2b2b2b", ' stroke="#2b2b2b" stroke-width=".02"');
+          else if (t === "o") h += R(x, y, 1, 1, "#8a6a3c", ' stroke="#8a6a3c" stroke-width=".02"');
           else h += R(x, y, 1, 1, (x + y) % 2 ? "#cdc9b2" : "#d7d3bd");
         }
+      });
+      [0, 1].forEach(function (pass) {
+        (m.edges || []).forEach(function (e) {
+          var x = e[0], y = e[1], hz = e[2] === "h", c = e[3] === "c";
+          var col = pass ? (c ? "#8a6a3c" : "#2b2b2b") : (c ? "#4a3820" : "#111"), sw = pass ? 0.14 : 0.26;
+          h += '<line x1="' + x + '" y1="' + y + '" x2="' + (hz ? x + 1 : x) + '" y2="' + (hz ? y : y + 1) + '" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="square"/>';
+        });
       });
       for (var i = 0; i < w; i++) h += txt(i + 0.5, -0.25, String.fromCharCode(65 + i), 0.32);
       for (var j = 0; j < H; j++) h += txt(-0.4, j + 0.62, j + 1, 0.32);

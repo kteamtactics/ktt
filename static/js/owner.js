@@ -358,7 +358,7 @@
 
 
   // ---------- maps ----------
-  var MAPFILE = "data/maps.json", maps = null, mapsSha = null, mapIdx = -1, paint = ".";
+  var MAPFILE = "data/maps.json", maps = null, mapsSha = null, mapIdx = -1, paint = "|w";
   function mapMsg(t, bad) { var m = $("o-mapmsg"); m.textContent = t; m.style.color = bad ? "#ff8a7a" : ""; }
   function openMaps() {
     $("o-mapedit").hidden = true; $("o-list").hidden = false;
@@ -412,17 +412,51 @@
     var w = Math.max(4, Math.min(40, +$("m-w").value || 14)), hh = Math.max(4, Math.min(40, +$("m-h").value || 10));
     var rows = [];
     for (var y = 0; y < hh; y++) { var r = (cur.rows[y] || ""); rows.push((r + new Array(w + 1).join(".")).slice(0, w)); }
-    cur.w = w; cur.h = hh; cur.rows = rows; drawGrid(); preview();
+    cur.w = w; cur.h = hh; cur.rows = rows;
+    if (cur.edges) cur.edges = cur.edges.filter(function (e) { return e[2] === "h" ? e[0] < w && e[1] > 0 && e[1] < hh : e[1] < hh && e[0] > 0 && e[0] < w; });
+    drawGrid(); preview();
   }
   function drawGrid() {
     var g = $("o-mapgrid"), h = "";
     g.style.gridTemplateColumns = "repeat(" + cur.w + ",1fr)";
     cur.rows.forEach(function (r, y) { for (var x = 0; x < cur.w; x++) { var c = r[x] || "."; h += '<span data-x="' + x + '" data-y="' + y + '" class="' + (c === "#" ? "w" : c === "o" ? "c" : "") + '" title="' + String.fromCharCode(65 + x) + (y + 1) + '"></span>'; } });
     g.innerHTML = h;
+    g.classList.toggle("edge", paint.charAt(0) === "|");
+    drawEdges();
+  }
+  function drawEdges() {
+    var sv = $("o-mapedges"), h = "";
+    sv.setAttribute("viewBox", "0 0 " + cur.w + " " + cur.h);
+    (cur.edges || []).forEach(function (e) {
+      var x = e[0], y = e[1], hz = e[2] === "h";
+      h += '<line x1="' + x + '" y1="' + y + '" x2="' + (hz ? x + 1 : x) + '" y2="' + (hz ? y : y + 1) + '" stroke="' + (e[3] === "c" ? "#8a6a3c" : "#2b2b2b") + '" stroke-width=".24" stroke-linecap="square" vector-effect="none"/>';
+    });
+    sv.innerHTML = h;
+  }
+  function edgeAt(e, lock) {
+    var r = $("o-mapgrid").getBoundingClientRect();
+    var fx = (e.clientX - r.left) / r.width * cur.w, fy = (e.clientY - r.top) / r.height * cur.h;
+    if (fx < 0 || fy < 0 || fx > cur.w || fy > cur.h) return null;
+    var dx = Math.abs(fx - Math.round(fx)), dy = Math.abs(fy - Math.round(fy));
+    if (lock) { if (lock[0] === "v") fx = lock[1]; else fy = lock[1]; dx = lock[0] === "v" ? 0 : 1; dy = 1 - dx; }
+    if (dx < dy) { var X = Math.round(fx), y = Math.floor(fy); if (X <= 0 || X >= cur.w || y >= cur.h) return null; return [X, y, "v"]; }
+    var Y = Math.round(fy), x = Math.floor(fx); if (Y <= 0 || Y >= cur.h || x >= cur.w) return null; return [x, Y, "h"];
   }
   (function () {
-    var down = false;
+    var down = false, edgeMode = null, last = "", lock = null;
+    function hitEdge(e, first) {
+      var ed = edgeAt(e, first ? null : lock); if (!ed) return;
+      if (first) lock = ed[2] === "v" ? ["v", ed[0]] : ["h", ed[1]];
+      var key = ed.join(","); if (!first && key === last) return; last = key;
+      var type = paint.charAt(1), list = cur.edges || (cur.edges = []);
+      var i = list.findIndex(function (q) { return q[0] === ed[0] && q[1] === ed[1] && q[2] === ed[2]; });
+      if (first) edgeMode = type === "x" || (i >= 0 && list[i][3] === type) ? "remove" : "add";
+      if (edgeMode === "remove") { if (i >= 0) list.splice(i, 1); }
+      else if (i >= 0) list[i][3] = type; else list.push([ed[0], ed[1], ed[2], type]);
+      drawEdges();
+    }
     function hit(e) {
+      if (paint.charAt(0) === "|") return hitEdge(e, false);
       var el = document.elementFromPoint(e.clientX, e.clientY);
       if (!el || !el.hasAttribute || !el.hasAttribute("data-x")) return;
       var x = +el.getAttribute("data-x"), y = +el.getAttribute("data-y"), r = cur.rows[y];
@@ -431,13 +465,14 @@
       el.className = paint === "#" ? "w" : paint === "o" ? "c" : "";
     }
     var g = $("o-mapgrid");
-    g.addEventListener("pointerdown", function (e) { down = true; hit(e); e.preventDefault(); });
+    g.addEventListener("pointerdown", function (e) { down = true; if (paint.charAt(0) === "|") hitEdge(e, true); else hit(e); e.preventDefault(); });
     window.addEventListener("pointermove", function (e) { if (down) hit(e); });
     window.addEventListener("pointerup", function () { if (down) { down = false; preview(); } });
     document.querySelectorAll("[data-paint]").forEach(function (b) {
       b.addEventListener("click", function () {
         paint = b.getAttribute("data-paint");
         document.querySelectorAll("[data-paint]").forEach(function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+        $("o-mapgrid").classList.toggle("edge", paint.charAt(0) === "|");
       });
     });
   })();
