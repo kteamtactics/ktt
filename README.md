@@ -30,7 +30,7 @@ Chaque fiche contient déjà ses règles, mais elles restent cachées tant que l
 
 ### Maps
 
-- **New map (squares)** : un plateau en cases, pour les puzzles. Choisis la taille. **Wall** et **Cover** posent un mur ou un couvert sur la ligne entre deux cases : clique sur la ligne (ou glisse le long), reclique dessus pour l'enlever ; **Eraser** efface. **Cover —**, **Cover |** et **Cover ■** posent un couvert n'importe où : clique à l'endroit voulu (reclique dessus pour l'enlever). Pour remplir une case entière : **Solid block**, **Cover block**, **Empty square**.
+- **New map (squares)** : un plateau en cases, pour les puzzles. Choisis la taille. **Wall**, **Cover**, **Door** et **Breach point** posent un mur, un couvert, une porte ou un point de brèche sur la ligne entre deux cases : clique sur la ligne (ou glisse le long), reclique dessus pour l'enlever ; **Eraser** efface. **Cover —**, **Cover |** et **Cover ■** posent un couvert n'importe où : clique à l'endroit voulu (reclique dessus pour l'enlever). Pour remplir une case entière : **Solid block**, **Cover block**, **Empty square**.
 - Les maps « killzone » (Volkus, Tomb World, Gallowdark…) se modifient avec leurs chiffres ; l'aperçu se met à jour quand tu quittes le cadre. **Save as a copy** crée une nouvelle map à partir d'une existante.
 - Une nouvelle map apparaît dans la liste des plateaux environ une minute après sa publication (recharge la page owner).
 

@@ -428,10 +428,7 @@
   function drawEdges() {
     var sv = $("o-mapedges"), h = "";
     sv.setAttribute("viewBox", "0 0 " + cur.w + " " + cur.h);
-    (cur.edges || []).forEach(function (e) {
-      var x = e[0], y = e[1], hz = e[2] === "h";
-      h += '<line x1="' + x + '" y1="' + y + '" x2="' + (hz ? x + 1 : x) + '" y2="' + (hz ? y : y + 1) + '" stroke="' + (e[3] === "c" ? "#8a6a3c" : "#2b2b2b") + '" stroke-width=".24" stroke-linecap="square" vector-effect="none"/>';
-    });
+    h += window.KTT.board.edgesSvg(cur.edges);
     (cur.pieces || []).forEach(function (q) {
       h += '<rect x="' + q[0] + '" y="' + q[1] + '" width="' + q[2] + '" height="' + q[3] + '" fill="#8a6a3c" stroke="#4a3820" stroke-width=".05"/>';
     });

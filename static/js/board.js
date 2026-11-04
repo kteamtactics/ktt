@@ -135,6 +135,26 @@
   }
 
   // ---------- drawing ----------
+  // lines between squares: [x, y, "h"|"v", type] with type w wall, c cover, d door, b breach point
+  function edgesSvg(edges) {
+    var h = "";
+    [0, 1, 2].forEach(function (pass) {
+      (edges || []).forEach(function (e) {
+        var x = e[0], y = e[1], hz = e[2] === "h", t = e[3], c = t === "c";
+        var x2 = hz ? x + 1 : x, y2 = hz ? y : y + 1, mx = hz ? x + 0.5 : x, my = hz ? y : y + 0.5;
+        if (pass < 2) {
+          var col = pass ? (c ? "#8a6a3c" : "#2b2b2b") : (c ? "#4a3820" : "#111"), sw = pass ? 0.14 : 0.26;
+          h += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="square"/>';
+        } else if (t === "d") {
+          var L = 0.72, T = 0.3, ww = hz ? L : T, hh = hz ? T : L;
+          h += '<rect x="' + r2(mx - ww / 2) + '" y="' + r2(my - hh / 2) + '" width="' + ww + '" height="' + hh + '" fill="' + OR + '" stroke="' + INK + '" stroke-width=".06"/>';
+        } else if (t === "b") {
+          h += '<rect x="' + r2(mx - 0.22) + '" y="' + r2(my - 0.22) + '" width=".44" height=".44" fill="' + INK + '"/><path d="M' + r2(mx - 0.13) + " " + r2(my - 0.13) + 'l.26 .26m0 -.26l-.26 .26" stroke="' + PAPER + '" stroke-width=".07"/>';
+        }
+      });
+    });
+    return h;
+  }
   function drawMap(m) {
     var h = "", w = m.w, H = m.h;
     var R = function (x, y, ww, hh, f, extra) { return '<rect x="' + x + '" y="' + y + '" width="' + ww + '" height="' + hh + '" fill="' + f + '"' + (extra || "") + "/>"; };
@@ -151,13 +171,7 @@
         }
       });
       (m.pieces || []).forEach(function (q) { h += R(q[0], q[1], q[2], q[3], "#8a6a3c", ' stroke="#4a3820" stroke-width=".06"'); });
-      [0, 1].forEach(function (pass) {
-        (m.edges || []).forEach(function (e) {
-          var x = e[0], y = e[1], hz = e[2] === "h", c = e[3] === "c";
-          var col = pass ? (c ? "#8a6a3c" : "#2b2b2b") : (c ? "#4a3820" : "#111"), sw = pass ? 0.14 : 0.26;
-          h += '<line x1="' + x + '" y1="' + y + '" x2="' + (hz ? x + 1 : x) + '" y2="' + (hz ? y : y + 1) + '" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="square"/>';
-        });
-      });
+      h += edgesSvg(m.edges);
       for (var i = 0; i < w; i++) h += txt(i + 0.5, -0.25, String.fromCharCode(65 + i), 0.32);
       for (var j = 0; j < H; j++) h += txt(-0.4, j + 0.62, j + 1, 0.32);
       h += '<rect x="0" y="0" width="' + w + '" height="' + H + '" fill="none" stroke="' + INK + '" stroke-width=".1"/>';
@@ -452,7 +466,7 @@
     render(false);
   }
 
-  KTT.board = { mount: mount, stateAt: stateAt, drawScene: drawScene, cellName: cellName, cellPos: cellPos, toPos: toPos, ACTIONS: ACTIONS };
+  KTT.board = { edgesSvg: edgesSvg, mount: mount, stateAt: stateAt, drawScene: drawScene, cellName: cellName, cellPos: cellPos, toPos: toPos, ACTIONS: ACTIONS };
 
   function boot() {
     var maps = window.KTT_MAPS || {};
