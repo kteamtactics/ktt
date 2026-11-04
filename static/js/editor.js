@@ -156,7 +156,7 @@
     if (!step()) { hint("Select or add a step first."); return; }
     if (tool === "capture") {
       var best = null, bd = 1.2;
-      (scene.objectives || []).forEach(function (o) { var q = B.toPos(map(), o); if (!q) return; var d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (d < bd) { bd = d; best = o; } });
+      B.objectivesOf(full()).forEach(function (o) { var q = B.toPos(map(), o); if (!q) return; var d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (d < bd) { bd = d; best = o; } });
       if (best != null) { push("captured", best); refresh(); }
       return;
     }

@@ -414,6 +414,7 @@
     for (var y = 0; y < hh; y++) { var r = (cur.rows[y] || ""); rows.push((r + new Array(w + 1).join(".")).slice(0, w)); }
     cur.w = w; cur.h = hh; cur.rows = rows;
     if (cur.edges) cur.edges = cur.edges.filter(function (e) { return e[2] === "h" ? e[0] < w && e[1] > 0 && e[1] < hh : e[1] < hh && e[0] > 0 && e[0] < w; });
+    if (cur.obj) cur.obj = cur.obj.filter(function (o) { var q = window.KTT.board.toPos(cur, o); return q && q[0] < w && q[1] < hh; });
     if (cur.pieces) cur.pieces = cur.pieces.filter(function (q) { return q[0] + q[2] <= w && q[1] + q[3] <= hh; });
     drawGrid(); preview();
   }
@@ -429,6 +430,10 @@
     var sv = $("o-mapedges"), h = "";
     sv.setAttribute("viewBox", "0 0 " + cur.w + " " + cur.h);
     h += window.KTT.board.edgesSvg(cur.edges);
+    (cur.obj || []).forEach(function (o) {
+      var q = window.KTT.board.toPos(cur, o); if (!q) return;
+      h += '<polygon points="' + q[0] + "," + (q[1] - 0.38) + " " + (q[0] + 0.38) + "," + q[1] + " " + q[0] + "," + (q[1] + 0.38) + " " + (q[0] - 0.38) + "," + q[1] + '" fill="#ff6a13" stroke="#141414" stroke-width=".07"/>';
+    });
     (cur.pieces || []).forEach(function (q) {
       h += '<rect x="' + q[0] + '" y="' + q[1] + '" width="' + q[2] + '" height="' + q[3] + '" fill="#8a6a3c" stroke="#4a3820" stroke-width=".05"/>';
     });
@@ -443,6 +448,13 @@
     var list = cur.pieces || [];
     for (var i = list.length - 1; i >= 0; i--) { var q = list[i]; if (p[0] >= q[0] - 0.1 && p[0] <= q[0] + q[2] + 0.1 && p[1] >= q[1] - 0.1 && p[1] <= q[1] + q[3] + 0.1) return i; }
     return -1;
+  }
+  function toggleObjective(e) {
+    var p = boardPos(e); if (p[0] < 0 || p[1] < 0 || p[0] >= cur.w || p[1] >= cur.h) return;
+    var name = String.fromCharCode(65 + Math.floor(p[0])) + (Math.floor(p[1]) + 1), list = cur.obj || (cur.obj = []);
+    var i = list.indexOf(name); if (i >= 0) list.splice(i, 1); else list.push(name);
+    if (!list.length) delete cur.obj;
+    drawEdges();
   }
   function placePiece(e) {
     var p = boardPos(e), sz = PIECE[paint.charAt(1)], snap = function (v) { return Math.round(v * 4) / 4; };
@@ -485,7 +497,7 @@
       el.className = paint === "#" ? "w" : paint === "o" ? "c" : "";
     }
     var g = $("o-mapgrid");
-    g.addEventListener("pointerdown", function (e) { e.preventDefault(); if (paint.charAt(0) === "*") { placePiece(e); preview(); return; } down = true; if (paint.charAt(0) === "|") hitEdge(e, true); else hit(e); });
+    g.addEventListener("pointerdown", function (e) { e.preventDefault(); if (paint === "@") { toggleObjective(e); preview(); return; } if (paint.charAt(0) === "*") { placePiece(e); preview(); return; } down = true; if (paint.charAt(0) === "|") hitEdge(e, true); else hit(e); });
     window.addEventListener("pointermove", function (e) { if (down) hit(e); });
     window.addEventListener("pointerup", function () { if (down) { down = false; preview(); } });
     document.querySelectorAll("[data-paint]").forEach(function (b) {

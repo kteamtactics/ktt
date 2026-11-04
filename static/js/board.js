@@ -135,6 +135,11 @@
   }
 
   // ---------- drawing ----------
+  // objectives of a board: the ones placed on the board itself, otherwise the ones drawn on the map
+  function objectivesOf(scene) {
+    var own = scene.objectives || [];
+    return own.length ? own : ((scene.mapData && scene.mapData.obj) || []);
+  }
   // lines between squares: [x, y, "h"|"v", type] with type w wall, c cover, d door, b breach point
   function edgesSvg(edges) {
     var h = "";
@@ -256,7 +261,7 @@
     });
     h += "</defs>";
     h += drawMap(m);
-    (scene.objectives || []).forEach(function (o) {
+    objectivesOf(scene).forEach(function (o) {
       var p = toPos(m, o); if (!p) return;
       var key = String(o).toUpperCase(), cap = s.captured[key], k = grid ? 0.38 : 0.6;
       h += '<polygon data-obj="' + esc(key) + '" points="' + p[0] + "," + r2(p[1] - k) + " " + r2(p[0] + k) + "," + p[1] + " " + p[0] + "," + r2(p[1] + k) + " " + r2(p[0] - k) + "," + p[1] + '" fill="' + (cap ? "#ffffff" : OR) + '" stroke="' + INK + '" stroke-width=".09"' + (s.newCapture[key] ? late("fx-pop") : "") + "/>";
@@ -375,7 +380,7 @@
       }
       h += '<div class="gb-main"><div><div class="gb-screen">' + drawScene(scene, s, id, { fx: animate, delay: 0 }) + "</div>";
       h += '<div class="gb-legend"><span><i class="a"></i>' + esc(sideName(scene, "A").toUpperCase()) + '</span><span><i class="b"></i>' + esc(sideName(scene, "B").toUpperCase()) + "</span>";
-      if ((scene.objectives || []).length || (scene.mapData.o || []).length) h += '<span><i class="o"></i>OBJECTIVE</span>';
+      if (objectivesOf(scene).length || (scene.mapData.o || []).length) h += '<span><i class="o"></i>OBJECTIVE</span>';
       h += "</div></div><div class=\"gb-side\">";
       if (puzzle) {
         var mine = (scene.units || []).filter(function (u) { return u.side !== "B" && !s.dead[String(u.id)]; });
@@ -469,7 +474,7 @@
     render(false);
   }
 
-  KTT.board = { edgesSvg: edgesSvg, mount: mount, stateAt: stateAt, drawScene: drawScene, cellName: cellName, cellPos: cellPos, toPos: toPos, ACTIONS: ACTIONS };
+  KTT.board = { objectivesOf: objectivesOf, edgesSvg: edgesSvg, mount: mount, stateAt: stateAt, drawScene: drawScene, cellName: cellName, cellPos: cellPos, toPos: toPos, ACTIONS: ACTIONS };
 
   function boot() {
     var maps = window.KTT_MAPS || {};
