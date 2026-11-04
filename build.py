@@ -289,8 +289,24 @@ class Site:
             target = target.lstrip("/")
             if self.relative_index and (target == "" or target.endswith("/")):
                 target += "index.html"
+            if target.endswith((".js", ".css")):
+                target += "?v=" + self.asset_version()
             return (prefix + target) or "./"
         return url
+
+    def asset_version(self):
+        """Short hash of the scripts, styles and maps, so browsers fetch new versions right after a change."""
+        if not getattr(self, "_asset_v", None):
+            import hashlib
+            h = hashlib.sha1()
+            for base in (os.path.join(ROOT, "static"), os.path.join(ROOT, "data")):
+                for dirpath, _, files in sorted(os.walk(base)):
+                    for name in sorted(files):
+                        if name.endswith((".js", ".css", ".json")):
+                            with open(os.path.join(dirpath, name), "rb") as f:
+                                h.update(f.read())
+            self._asset_v = h.hexdigest()[:8]
+        return self._asset_v
 
     def fix_links(self, html_text, url):
         def repl(m):

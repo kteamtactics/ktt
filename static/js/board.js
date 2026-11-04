@@ -142,14 +142,17 @@
       (edges || []).forEach(function (e) {
         var x = e[0], y = e[1], hz = e[2] === "h", t = e[3], c = t === "c";
         var x2 = hz ? x + 1 : x, y2 = hz ? y : y + 1, mx = hz ? x + 0.5 : x, my = hz ? y : y + 0.5;
-        if (pass < 2) {
+        if (pass < 2 && t === "d") {
+          if (!pass) h += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#111" stroke-width=".26" stroke-linecap="square"/>';
+        } else if (pass < 2) {
           var col = pass ? (c ? "#8a6a3c" : "#2b2b2b") : (c ? "#4a3820" : "#111"), sw = pass ? 0.14 : 0.26;
           h += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="square"/>';
         } else if (t === "d") {
-          var L = 0.72, T = 0.3, ww = hz ? L : T, hh = hz ? T : L;
+          var L = 0.8, T = 0.34, ww = hz ? L : T, hh = hz ? T : L;
           h += '<rect x="' + r2(mx - ww / 2) + '" y="' + r2(my - hh / 2) + '" width="' + ww + '" height="' + hh + '" fill="' + OR + '" stroke="' + INK + '" stroke-width=".06"/>';
+          h += '<line x1="' + (hz ? mx : mx - 0.17) + '" y1="' + (hz ? my - 0.17 : my) + '" x2="' + (hz ? mx : mx + 0.17) + '" y2="' + (hz ? my + 0.17 : my) + '" stroke="' + INK + '" stroke-width=".05"/>';
         } else if (t === "b") {
-          h += '<rect x="' + r2(mx - 0.22) + '" y="' + r2(my - 0.22) + '" width=".44" height=".44" fill="' + INK + '"/><path d="M' + r2(mx - 0.13) + " " + r2(my - 0.13) + 'l.26 .26m0 -.26l-.26 .26" stroke="' + PAPER + '" stroke-width=".07"/>';
+          h += '<circle cx="' + mx + '" cy="' + my + '" r=".3" fill="#c62f2f" stroke="' + INK + '" stroke-width=".06"/><path d="M' + r2(mx - 0.13) + " " + r2(my - 0.13) + 'l.26 .26m0 -.26l-.26 .26" stroke="#fff" stroke-width=".08"/>';
         }
       });
     });
