@@ -18,21 +18,23 @@
 {%- endmacro %}
 
 {% macro kicker(d) -%}
-{%- if d.section == 'battle-analysis' -%}Battle analysis{%- elif d.section == 'news' -%}News{% if d.tag %} · {{ d.tag }}{% endif %}{%- else -%}Tactics{% if d.tag %} · {{ d.tag }}{% endif %}{%- endif -%}
+{%- if d.section == 'battle-analysis' -%}Battle analysis{%- elif d.section == 'puzzles' -%}Puzzle{% if d.event %} · {{ d.event }}{% endif %}{%- elif d.section == 'news' -%}News{% if d.tag %} · {{ d.tag }}{% endif %}{%- else -%}Tactics{% if d.tag %} · {{ d.tag }}{% endif %}{%- endif -%}
 {%- endmacro %}
 
 {% macro thumb(d, url, teams, alt_badge='') -%}
 {% if d.section == 'battle-analysis' and d.winner and d.loser and teams.get(d.winner.team) and teams.get(d.loser.team) %}
 <div class="thumb pix thumb-vs"><img class="pxi" src="{{ url(teams[d.winner.team].sprite) }}" alt=""><span>VS</span><img class="pxi" src="{{ url(teams[d.loser.team].sprite) }}" alt=""></div>
+{% elif d.section == 'puzzles' and not d.image and d.teams|length >= 2 and teams.get(d.teams[0]) and teams.get(d.teams[1]) %}
+<div class="thumb pix thumb-vs"><img class="pxi" src="{{ url(teams[d.teams[0]].sprite) }}" alt=""><span>?</span><img class="pxi" src="{{ url(teams[d.teams[1]].sprite) }}" alt=""></div>
 {% elif d.image %}
 <div class="thumb"><img class="pxi" src="{{ url(d.image) }}" alt="{{ d.image_alt or '' }}" loading="lazy">{% if alt_badge %}<span class="badge grey">{{ alt_badge }}</span>{% endif %}</div>
 {% else %}
-<div class="thumb"><img class="pxi" src="{{ url('img/art/news.svg' if d.section == 'news' else 'img/art/killzone.svg') }}" alt="" loading="lazy">{% if alt_badge %}<span class="badge grey">{{ alt_badge }}</span>{% endif %}</div>
+<div class="thumb"><img class="pxi" src="{{ url('img/art/news.svg' if d.section == 'news' else 'img/art/activation.svg' if d.section == 'puzzles' else 'img/art/killzone.svg') }}" alt="" loading="lazy">{% if alt_badge %}<span class="badge grey">{{ alt_badge }}</span>{% endif %}</div>
 {% endif %}
 {%- endmacro %}
 
 {% macro small_img(d, url, teams) -%}
-{% if d.image %}{{ url(d.image) }}{% elif d.section == 'battle-analysis' and d.winner and teams.get(d.winner.team) %}{{ url(teams[d.winner.team].sprite) }}{% elif d.section == 'news' %}{{ url('img/art/news.svg') }}{% else %}{{ url('img/art/killzone.svg') }}{% endif %}
+{% if d.image %}{{ url(d.image) }}{% elif d.section == 'battle-analysis' and d.winner and teams.get(d.winner.team) %}{{ url(teams[d.winner.team].sprite) }}{% elif d.section == 'news' %}{{ url('img/art/news.svg') }}{% elif d.section == 'puzzles' %}{{ url('img/art/activation.svg') }}{% else %}{{ url('img/art/killzone.svg') }}{% endif %}
 {%- endmacro %}
 
 {% macro card(d, url, teams) -%}

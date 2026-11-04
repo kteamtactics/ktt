@@ -56,6 +56,16 @@
 </section>
 {% endif %}
 
+{% if puzzles %}
+<section class="section top-line">
+<div class="wrap">
+<div class="section-head"><h2>Puzzles</h2><a href="{{ url('puzzles/') }}">All puzzles →</a></div>
+<p class="section-lead">A real tournament position. Take the controls and find the winner's line.</p>
+<div class="g3">{% for d in puzzles %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+</div>
+</section>
+{% endif %}
+
 {% if battle %}
 <section class="section alt">
 <div class="wrap">

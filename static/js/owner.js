@@ -119,8 +119,8 @@
   $("o-lockbtn").addEventListener("click", function () { token = null; doc = null; showLock(); });
 
   // ---------- sections and lists ----------
-  var FOLDERS = { news: "content/news", tactics: "content/tactics", "battle-analysis": "content/battle-analysis", teams: "content/teams", pages: "content/pages" };
-  var NOUN = { news: "news article", tactics: "tactics article", "battle-analysis": "battle analysis", teams: "team", pages: "page" };
+  var FOLDERS = { news: "content/news", tactics: "content/tactics", puzzles: "content/puzzles", "battle-analysis": "content/battle-analysis", teams: "content/teams", pages: "content/pages" };
+  var NOUN = { news: "news article", tactics: "tactics article", puzzles: "puzzle", "battle-analysis": "battle analysis", teams: "team", pages: "page" };
   document.querySelectorAll("#o-app [data-sec]").forEach(function (b) {
     b.addEventListener("click", function () { openSection(b.getAttribute("data-sec")); });
   });
@@ -171,6 +171,7 @@
   var FIELDS = {
     news: [["title", "Title", "text"], ["date", "Date", "date"], ["tag", "Label (small orange word above the title)", "text"], ["standfirst", "Standfirst (one or two sentences under the title)", "area"], ["image", "Image", "image"], ["image_alt", "What the image shows (for the blind and for Google)", "text"], ["featured", "Big on the home page", "check"], ["teams", "Teams in this article", "teams"], ["draft", "Draft (not published yet)", "check"]],
     tactics: [["title", "Title", "text"], ["date", "Date", "date"], ["tag", "Concept (used for the filters: Positioning, Activations, Objectives, Your move…)", "text"], ["standfirst", "Standfirst", "area"], ["image", "Image for the cards", "image"], ["image_alt", "What the image shows", "text"], ["takeaway", "What to remember (orange box)", "area"], ["featured", "Big on the home page", "check"], ["teams", "Teams in this article", "teams"], ["draft", "Draft (not published yet)", "check"]],
+    puzzles: [["title", "Title", "text"], ["date", "Date", "date"], ["event", "Event (e.g. LVO · Day 2)", "text"], ["standfirst", "One sentence for the cards", "area"], ["turning_point", "Turning point", "select:,1,2,3,4"], ["score", "Score (e.g. James 6 VP · Nick 2 VP)", "text"], ["cp", "Command points (e.g. Nick 2 CP · James 1 CP)", "text"], ["mission", "Mission and objectives", "text"], ["question", "The question (e.g. Find Nick's activation: he killed 4 operatives)", "area"], ["wrong", "Message when the reader goes wrong (a hint, without giving the answer)", "area"], ["answer", "What the winner played and why (shown once solved or revealed)", "area"], ["battle", "Code of the battle analysis of this game (optional, e.g. lvo-pathfinders-vs-xv26)", "text"], ["video", "Link to the video (optional)", "text"], ["image", "Image for the cards (optional)", "image"], ["image_alt", "What the image shows", "text"], ["featured", "Big on the home page", "check"], ["draft", "Draft (not published yet)", "check"]],
     "battle-analysis": [["title", "Title", "text"], ["date", "Date", "date"], ["event", "Event (e.g. LVO Kill Team Championships · Day 1)", "text"], ["map_name", "Map", "text"], ["score", "Score", "text"], ["winner.player", "Winner", "text"], ["winner.team", "Winner's team", "team"], ["loser.player", "Opponent", "text"], ["loser.team", "Opponent's team", "team"], ["lesson", "The lesson (orange box)", "area"], ["video", "Link to the video (optional)", "text"], ["standfirst", "One sentence for the cards", "area"], ["featured", "Big on the home page", "check"], ["draft", "Draft (not published yet)", "check"]],
     pages: [["title", "Title", "text"], ["nav", "Name in the top menu (empty = not in the menu)", "text"], ["order", "Position in the menu (1, 2, 3…)", "text"], ["standfirst", "Standfirst (under the title)", "area"], ["image", "Image", "image"], ["image_alt", "What the image shows", "text"], ["draft", "Draft (not published yet)", "check"]],
     teams: [["name", "Name", "text"], ["guide", "Guide published: the rules are visible on the site (untick = \"Guide in progress\")", "pub"], ["sprite", "Pixel art (optional: leave empty to keep the current one)", "image"], ["faction", "Faction", "select:Imperium,Chaos,Xenos"], ["status", "List", "select:classified,declassified"], ["season", "Season", "select:,Octarius,Gallowdark,Bheta-Decima,Volkus,Tomb World,Armageddon"], ["released", "Release date (e.g. June 2024)", "text"], ["line", "One line on the card", "area"], ["summary", "Short summary on the team page", "area"], ["plays_best", "Plays best", "text"], ["good_for", "Good for", "text"], ["strengths", "Best at (one per line)", "lines"], ["weaknesses", "Worst at (one per line)", "lines"], ["difficulty", "Difficulty", "select:,1,2,3"], ["ratings.shooting", "Shooting (stars)", "select:,1,2,3,4,5"], ["ratings.melee", "Melee (stars)", "select:,1,2,3,4,5"], ["ratings.defence", "Defence (stars)", "select:,1,2,3,4,5"], ["ratings.tricks", "Tricks (stars)", "select:,1,2,3,4,5"], ["ratings.movement", "Movement (stars)", "select:,1,2,3,4,5"], ["ratings.synergy", "Synergy (stars)", "select:,1,2,3,4,5"], ["home", "Show on the home page", "check"], ["featured", "In the Latest list on the home page (only once the guide is published)", "check"], ["rules.faction", "Faction rules: one per line, written Name: what it does", "rules"], ["rules.strategic", "Strategy ploys: one per line, Name: what it does", "rules"], ["rules.firefight", "Firefight ploys: one per line, Name: what it does", "rules"], ["rules.equipment", "Equipment: one per line, Name: what it does", "rules"], ["rules.operatives", "Operatives: one per line, Operative · rule: what it does", "rules"]]
@@ -215,16 +216,19 @@
       h = '<label>Settings file<textarea id="o-raw" class="o-raw">' + esc(doc.text) + "</textarea></label>";
     } else {
       (FIELDS[doc.section] || []).forEach(function (fd, i) { h += fieldHtml(fd, doc.meta, i); });
-      h += '<label>' + (doc.section === "teams" ? "Full guide (optional, shown under the rules once the guide is published)" : doc.section === "battle-analysis" ? "Summary of the game" : "Text") +
+      h += '<label>' + (doc.section === "teams" ? "Full guide (optional, shown under the rules once the guide is published)" : doc.section === "battle-analysis" ? "Summary of the game" : doc.section === "puzzles" ? "The context of the game (shown before the puzzle)" : "Text") +
         ' <span class="small">(a blank line = new paragraph · ## Subtitle · **bold** · *italic*' + (doc.section === "tactics" ? " · [[board]] = where the board goes" : "") + ")</span>" +
         '<textarea id="o-body" class="o-body">' + esc(doc.body) + "</textarea></label>";
     }
     f.innerHTML = h;
     f.querySelectorAll("[data-upload]").forEach(function (b) { b.addEventListener("click", function () { upload(b.getAttribute("data-upload")); }); });
-    var hasBoardType = doc.section === "tactics" || doc.section === "battle-analysis";
+    var hasBoardType = doc.section === "tactics" || doc.section === "battle-analysis" || (doc.section === "puzzles" && !!doc.meta.scene);
     $("o-boardwrap").hidden = !(hasBoardType && doc.meta.scene);
     $("o-addboard").hidden = !(hasBoardType && !doc.meta.scene);
     if (hasBoardType && doc.meta.scene) window.KTT.editor.load(doc.meta.scene);
+    var isPz = doc.section === "puzzles" && !doc.meta.scene;
+    $("o-pzwrap").hidden = !isPz;
+    if (isPz) window.KTT.pzeditor.load(doc.meta.play);
     $("o-delete").hidden = doc.kind === "raw" || doc.isNew;
     $("o-confirm").hidden = true;
     var v = $("o-view");
@@ -252,6 +256,7 @@
     if (doc.meta.date) doc.meta.date = dateStr(doc.meta.date);
     doc.body = $("o-body").value;
     if (!$("o-boardwrap").hidden) doc.meta.scene = window.KTT.editor.get();
+    if (!$("o-pzwrap").hidden) doc.meta.play = window.KTT.pzeditor.get();
   }
 
   // ---------- open / new / save / delete ----------
@@ -298,7 +303,7 @@
       if (!nm) { msg(doc.section === "teams" ? "Give the team a name first." : "Give it a title first.", true); return; }
       if (doc.isNew) {
         var sl = slugify(nm);
-        if (doc.section === "pages" && ["news", "tactics", "battle-analysis", "teams", "owner", "img", "css", "js"].indexOf(sl) !== -1) { msg("This title is already used by a section of the site. Choose another one.", true); return; }
+        if (doc.section === "pages" && ["news", "tactics", "puzzles", "battle-analysis", "teams", "owner", "img", "css", "js"].indexOf(sl) !== -1) { msg("This title is already used by a section of the site. Choose another one.", true); return; }
         path = FOLDERS[doc.section] + "/" + sl + ".md";
         doc.url = (doc.section === "teams" ? "teams/" : doc.section === "pages" ? "" : doc.section + "/") + sl + "/";
       }

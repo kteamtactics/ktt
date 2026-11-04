@@ -31,6 +31,7 @@
 <div class="chips" role="tablist" aria-label="Sections">
 <button type="button" class="chip" data-sec="news" aria-pressed="true">News</button>
 <button type="button" class="chip" data-sec="tactics" aria-pressed="false">Tactics</button>
+<button type="button" class="chip" data-sec="puzzles" aria-pressed="false">Puzzles</button>
 <button type="button" class="chip" data-sec="battle-analysis" aria-pressed="false">Battle analysis</button>
 <button type="button" class="chip" data-sec="teams" aria-pressed="false">Teams</button>
 <button type="button" class="chip" data-sec="maps" aria-pressed="false">Maps</button>
@@ -100,6 +101,7 @@
 {% include "_board_editor.html" %}
 </div>
 <button class="btn sm ghost" type="button" id="o-addboard" hidden>Add a board</button>
+<div id="o-pzwrap" hidden></div>
 <div class="o-actions">
 <button class="btn" type="button" id="o-save">Publish</button>
 <a class="btn ghost" id="o-view" href="#" target="_blank" rel="noopener" hidden>See the page</a>
@@ -119,7 +121,9 @@
 {% block scripts %}
 <script src="{{ url('js/maps.js') }}"></script>
 <script src="{{ url('js/board.js') }}"></script>
+<script src="{{ url('js/puzzle.js') }}"></script>
 <script src="{{ url('js/vendor/js-yaml.min.js') }}"></script>
 <script src="{{ url('js/editor.js') }}"></script>
+<script src="{{ url('js/puzzle-editor.js') }}"></script>
 <script src="{{ url('js/owner.js') }}"></script>
 {% endblock %}

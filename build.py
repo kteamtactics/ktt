@@ -26,6 +26,7 @@ OUT = os.path.join(ROOT, "_site")
 SECTIONS = {
     "news": {"title": "News", "url": "news/"},
     "tactics": {"title": "Tactics", "url": "tactics/"},
+    "puzzles": {"title": "Puzzles", "url": "puzzles/"},
     "battle-analysis": {"title": "Battle analysis", "url": "battle-analysis/"},
     "teams": {"title": "Teams", "url": "teams/"},
 }
@@ -161,17 +162,19 @@ class Site:
                 self.docs[section].append(doc)
         for t in self.docs["teams"]:
             self.teams[t["slug"]] = t
-        for section in ("news", "tactics", "battle-analysis"):
+        for section in ("news", "tactics", "puzzles", "battle-analysis"):
             self.docs[section].sort(key=lambda d: (d["date"], d["title"]), reverse=True)
         self.docs["teams"].sort(key=lambda d: d["name"].lower())
         # validate references to teams and maps
-        for section in ("tactics", "battle-analysis", "news"):
+        for section in ("tactics", "puzzles", "battle-analysis", "news"):
             for d in self.docs[section]:
                 for slug in d.get("teams", []):
                     if slug not in self.teams:
                         self.errors.append(f"{d['source']}: team '{slug}' does not exist (see the file names in content/teams)")
                 if d.get("scene"):
                     self.check_scene(d)
+                if d.get("play"):
+                    self.check_play(d)
 
     def make_doc(self, section, path):
         meta, body = read_doc(path)
@@ -242,6 +245,58 @@ class Site:
             doc["read_time"] = meta.get("read_time") or max(1, math.ceil(words / 200))
         doc["body_md"] = body
         return doc
+
+    def check_play(self, d):
+        """A puzzle played on the board: operatives with their profiles, and the line of the real game."""
+        pl = d["play"]
+        src = d["source"]
+        if not isinstance(pl, dict):
+            self.errors.append(f"{src}: 'play' must contain 'map:', 'units:' and 'solution:'")
+            return
+        if pl.get("map") not in self.maps:
+            self.errors.append(f"{src}: map '{pl.get('map')}' does not exist. Maps: {', '.join(self.maps)}")
+        ids = []
+        for u in pl.get("units") or []:
+            if not isinstance(u, dict) or not u.get("id"):
+                self.errors.append(f"{src}: every operative needs a short code (id)")
+                continue
+            if str(u["id"]) in ids:
+                self.errors.append(f"{src}: two operatives use the code '{u['id']}'")
+            ids.append(str(u["id"]))
+        for i, a in enumerate(pl.get("solution") or [], 1):
+            if not isinstance(a, dict) or str(a.get("unit")) not in ids:
+                self.errors.append(f"{src}: activation {i} of the solution uses an unknown operative")
+                continue
+            for x in a.get("actions") or []:
+                refs = [x.get("target")] if x.get("target") is not None else []
+                refs += list(x.get("targets") or []) + list(x.get("kills") or [])
+                for r in refs:
+                    if str(r) not in ids:
+                        self.errors.append(f"{src}: activation {i}: unknown operative '{r}'")
+        teams = [((pl.get("sides") or {}).get(k) or {}).get("team") for k in ("A", "B")]
+        for slug in teams:
+            if slug and slug not in self.teams:
+                self.errors.append(f"{src}: team '{slug}' does not exist (see the file names in content/teams)")
+        if not d.get("teams"):
+            d["teams"] = [t for t in teams if t]
+
+    def play_json(self, d, url):
+        pl = dict(d["play"])
+        pl["mapData"] = self.maps.get(pl.get("map"))
+        sides = {}
+        for key in ("A", "B"):
+            side = dict((pl.get("sides") or {}).get(key) or {})
+            slug = side.get("team")
+            if slug in self.teams:
+                side.setdefault("name", self.teams[slug]["name"])
+                side["sprite"] = url(self.teams[slug]["sprite"])
+            sides[key] = side
+        pl["sides"] = sides
+        for key in ("question", "wrong"):
+            if d.get(key):
+                pl[key] = str(d[key])
+        pl["tp"] = str(d.get("turning_point") or "")
+        return json.dumps(pl, ensure_ascii=False, default=str).replace("</", "<\\/")
 
     def check_scene(self, d):
         sc = d["scene"]
@@ -328,6 +383,18 @@ class Site:
         with open(target, "w", encoding="utf-8") as f:
             f.write(out)
 
+    def redirect(self, old_path, new_path):
+        """A small page at an old address that sends readers (and Google) to the new one."""
+        url = self.url_func(old_path)
+        target = url(new_path)
+        canon = str(self.settings.get("url", "")).rstrip("/") + "/" + new_path
+        html_text = (f'<!doctype html><meta charset="utf-8"><title>Moved</title><link rel="canonical" href="{canon}">'
+                     f'<meta http-equiv="refresh" content="0; url={target}"><p><a href="{target}">This page has moved.</a></p>')
+        path = os.path.join(OUT, old_path, "index.html")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html_text)
+
     def scene_json(self, d, url):
         sc = dict(d["scene"])
         sc["mapData"] = self.maps.get(sc.get("map"))
@@ -349,7 +416,7 @@ class Site:
         if os.path.isdir(OUT):
             shutil.rmtree(OUT)
         shutil.copytree(os.path.join(ROOT, "static"), OUT)
-        articles = self.docs["news"] + self.docs["tactics"] + self.docs["battle-analysis"]
+        articles = self.docs["news"] + self.docs["tactics"] + self.docs["puzzles"] + self.docs["battle-analysis"]
         articles.sort(key=lambda d: (d["date"], d["title"]), reverse=True)
 
         # article bodies
@@ -360,6 +427,8 @@ class Site:
             body_html = self.render_md(body.replace("[[board]]", "\n\n<div data-board-slot></div>\n\n"), url)
             d["body_html"] = body_html
             d["scene_json"] = self.scene_json(d, url) if d.get("scene") else None
+            d["play_json"] = self.play_json(d, url) if d.get("play") else None
+            d["answer_html"] = self.render_md(str(d.get("answer") or ""), url) if d.get("answer") else ""
         for t in self.docs["teams"]:
             t["body_html"] = self.render_md(t["body_md"], self.url_func(t["path"])) if t["body_md"].strip() else ""
             t["related"] = [a for a in articles if t["slug"] in a.get("teams", [])]
@@ -369,7 +438,7 @@ class Site:
         home_teams = [t for t in self.docs["teams"] if t.get("home")] or [t for t in self.docs["teams"] if t.get("line")]
         self.page("home.html", "", featured=featured, home_guides=home_guides,
                   latest=[a for a in articles if a is not featured][:max(0, 3 - len(home_guides))],
-                  news=self.docs["news"][:3], tactics=self.docs["tactics"][:3],
+                  news=self.docs["news"][:3], tactics=self.docs["tactics"][:3], puzzles=self.docs["puzzles"][:3],
                   battle=self.docs["battle-analysis"][0] if self.docs["battle-analysis"] else None,
                   home_teams=home_teams[:6], team_count=len(self.docs["teams"]), section="home")
         self.page("list_news.html", "news/", items=self.docs["news"], section="news")
@@ -378,14 +447,18 @@ class Site:
             if d.get("tag") and d["tag"] not in tactic_tags:
                 tactic_tags.append(d["tag"])
         self.page("list_tactics.html", "tactics/", items=self.docs["tactics"], tags=tactic_tags, section="tactics")
+        self.page("list_puzzles.html", "puzzles/", items=self.docs["puzzles"], section="puzzles")
         self.page("list_battles.html", "battle-analysis/", items=self.docs["battle-analysis"], section="battle-analysis")
         team_tags = [f for f in ("Imperium", "Chaos", "Xenos") if any(t["faction"] == f for t in self.docs["teams"])]
         counts = {s: sum(1 for t in self.docs["teams"] if t["status"] == s) for s in ("classified", "declassified")}
         self.page("list_teams.html", "teams/", items=self.docs["teams"], tags=team_tags, counts=counts, section="teams")
         for d in articles:
-            tpl = "battle.html" if d["section"] == "battle-analysis" else "article.html"
+            tpl = {"battle-analysis": "battle.html", "puzzles": "puzzle.html"}.get(d["section"], "article.html")
             more = [a for a in self.docs[d["section"]] if a is not d][:3]
-            self.page(tpl, d["path"], doc=d, more=more, section=d["section"])
+            battle = next((b for b in self.docs["battle-analysis"] if b["slug"] == d.get("battle")), None)
+            self.page(tpl, d["path"], doc=d, more=more, battle=battle, section=d["section"])
+            if d.get("moved_from"):
+                self.redirect(str(d["moved_from"]).strip("/") + "/", d["path"])
         for t in self.docs["teams"]:
             self.page("team.html", t["path"], doc=t, section="teams")
         for pg in self.pages:

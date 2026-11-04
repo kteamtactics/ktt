@@ -40,6 +40,7 @@
 <nav class="nav" id="nav" aria-label="Main">
 <a href="{{ url('') }}"{% if section in ('home', 'news') %} aria-current="page"{% endif %}>News</a>
 <a href="{{ url('tactics/') }}"{% if section == 'tactics' %} aria-current="page"{% endif %}>Tactics</a>
+<a href="{{ url('puzzles/') }}"{% if section == 'puzzles' %} aria-current="page"{% endif %}>Puzzles</a>
 <a href="{{ url('battle-analysis/') }}"{% if section == 'battle-analysis' %} aria-current="page"{% endif %}>Battle analysis</a>
 <a href="{{ url('teams/') }}"{% if section == 'teams' %} aria-current="page"{% endif %}>Teams</a>
 {% for pg in nav_pages %}<a href="{{ url(pg.path) }}"{% if section == pg.section %} aria-current="page"{% endif %}>{{ pg.nav }}</a>

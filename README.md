@@ -28,6 +28,17 @@ Chaque fiche contient déjà ses règles, mais elles restent cachées tant que l
 
 **New team** crée une nouvelle équipe. Sans pixel art, un personnage « ? » s'affiche ; tu peux envoyer ton image dans le champ « Pixel art ».
 
+### Puzzles
+
+Un puzzle, c'est une position réelle d'un tournoi : le lecteur prend les commandes et doit retrouver la ligne du gagnant.
+
+1. **Puzzles › New** : remplis le contexte (événement, TP, score, CP, mission), la question, le message en cas d'erreur, et l'explication qui s'affiche une fois le puzzle résolu. Le grand champ texte raconte le contexte de la partie.
+2. **1. The board** : choisis la map, les deux équipes et les deux joueurs (ton camp = celui du gagnant).
+3. **2. The operatives** : un bloc par opérateur, avec code, nom, camp, APL, Move et armes (`Nom | melee` ou `Nom | ranged | règles`, écris `Torrent 2"` pour pouvoir viser plusieurs cibles). Coche « The reader plays it » pour les opérateurs que le lecteur contrôle. **Place on the board**, puis clique sur la map.
+4. **3. The winning line** : **Record the line**, puis joue toi-même ce qu'a fait le gagnant (et l'adversaire s'il agit entre deux). Après chaque attaque, indique qui est mis hors de combat. **Keep this line**, puis **Try it as a reader** pour tester, et **Publish**.
+
+Pour le lecteur : il active ses opérateurs, choisit les actions (AP, distances et murs sont vérifiés), et à la fin de chaque activation il voit s'il a joué comme le gagnant. Pas de dés : une attaque ne tue que si elle a tué dans la vraie partie.
+
 ### Maps
 
 - **New map (squares)** : un plateau en cases, pour les puzzles. Choisis la taille. **Wall**, **Cover**, **Door** et **Breach point** posent un mur, un couvert, une porte ou un point de brèche sur la ligne entre deux cases : clique sur la ligne (ou glisse le long), reclique dessus pour l'enlever ; **Eraser** efface. **Cover —**, **Cover |** et **Cover ■** posent un couvert n'importe où : clique à l'endroit voulu (reclique dessus pour l'enlever). **Objective** pose un objectif au centre d'une case (reclique pour l'enlever) : les plateaux qui utilisent cette map le reprennent automatiquement, sauf s'ils ont leurs propres objectifs. Pour remplir une case entière : **Solid block**, **Cover block**, **Empty square**.

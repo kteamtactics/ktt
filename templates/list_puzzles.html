@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% set title = "Puzzles" %}
+{% set description = "Real Kill Team tournament positions. Take the controls and find the winner's line." %}
+{% block main %}
+<section class="page-hero pix">
+<div class="wrap">
+<span class="kicker">Puzzles</span>
+<h1>Your move. Find the winner's line.</h1>
+</div>
+</section>
+<section class="wrap two-col" style="padding-top:40px">
+<div>
+{% if items %}
+<div class="g2">{% for d in items %}{{ m.card(d, url, teams) }}{% endfor %}</div>
+{% else %}
+<p>The first puzzles are on their way.</p>
+{% endif %}
+</div>
+<aside class="side-col">
+{{ m.ad(site, 'rectangle') }}
+{{ m.newsletter(site, url, True) }}
+</aside>
+</section>
+{% endblock %}

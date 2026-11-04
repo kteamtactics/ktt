@@ -2,6 +2,7 @@
 title: "Puzzle: Take advantage of your versatility"
 date: 2026-10-22
 tag: Your move
+moved_from: tactics/roundfulness/
 standfirst: "This is an endgame. You have to score 2 VP to win it. Find the way."
 image: /img/art/activation.svg
 image_alt: "Pixel art question mark in a targeting frame above a game board"
