@@ -150,6 +150,7 @@
           else h += R(x, y, 1, 1, (x + y) % 2 ? "#cdc9b2" : "#d7d3bd");
         }
       });
+      (m.pieces || []).forEach(function (q) { h += R(q[0], q[1], q[2], q[3], "#8a6a3c", ' stroke="#4a3820" stroke-width=".06"'); });
       [0, 1].forEach(function (pass) {
         (m.edges || []).forEach(function (e) {
           var x = e[0], y = e[1], hz = e[2] === "h", c = e[3] === "c";

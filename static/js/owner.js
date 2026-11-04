@@ -414,6 +414,7 @@
     for (var y = 0; y < hh; y++) { var r = (cur.rows[y] || ""); rows.push((r + new Array(w + 1).join(".")).slice(0, w)); }
     cur.w = w; cur.h = hh; cur.rows = rows;
     if (cur.edges) cur.edges = cur.edges.filter(function (e) { return e[2] === "h" ? e[0] < w && e[1] > 0 && e[1] < hh : e[1] < hh && e[0] > 0 && e[0] < w; });
+    if (cur.pieces) cur.pieces = cur.pieces.filter(function (q) { return q[0] + q[2] <= w && q[1] + q[3] <= hh; });
     drawGrid(); preview();
   }
   function drawGrid() {
@@ -421,7 +422,7 @@
     g.style.gridTemplateColumns = "repeat(" + cur.w + ",1fr)";
     cur.rows.forEach(function (r, y) { for (var x = 0; x < cur.w; x++) { var c = r[x] || "."; h += '<span data-x="' + x + '" data-y="' + y + '" class="' + (c === "#" ? "w" : c === "o" ? "c" : "") + '" title="' + String.fromCharCode(65 + x) + (y + 1) + '"></span>'; } });
     g.innerHTML = h;
-    g.classList.toggle("edge", paint.charAt(0) === "|");
+    g.classList.toggle("edge", paint.charAt(0) !== "#" && paint.charAt(0) !== "o" && paint !== ".");
     drawEdges();
   }
   function drawEdges() {
@@ -431,7 +432,28 @@
       var x = e[0], y = e[1], hz = e[2] === "h";
       h += '<line x1="' + x + '" y1="' + y + '" x2="' + (hz ? x + 1 : x) + '" y2="' + (hz ? y : y + 1) + '" stroke="' + (e[3] === "c" ? "#8a6a3c" : "#2b2b2b") + '" stroke-width=".24" stroke-linecap="square" vector-effect="none"/>';
     });
+    (cur.pieces || []).forEach(function (q) {
+      h += '<rect x="' + q[0] + '" y="' + q[1] + '" width="' + q[2] + '" height="' + q[3] + '" fill="#8a6a3c" stroke="#4a3820" stroke-width=".05"/>';
+    });
     sv.innerHTML = h;
+  }
+  var PIECE = { h: [1, 0.3], v: [0.3, 1], b: [0.6, 0.6] };
+  function boardPos(e) {
+    var r = $("o-mapgrid").getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width * cur.w, (e.clientY - r.top) / r.height * cur.h];
+  }
+  function pieceAt(p) {
+    var list = cur.pieces || [];
+    for (var i = list.length - 1; i >= 0; i--) { var q = list[i]; if (p[0] >= q[0] - 0.1 && p[0] <= q[0] + q[2] + 0.1 && p[1] >= q[1] - 0.1 && p[1] <= q[1] + q[3] + 0.1) return i; }
+    return -1;
+  }
+  function placePiece(e) {
+    var p = boardPos(e), sz = PIECE[paint.charAt(1)], snap = function (v) { return Math.round(v * 4) / 4; };
+    if (p[0] < 0 || p[1] < 0 || p[0] > cur.w || p[1] > cur.h) return;
+    var i = pieceAt(p); if (i >= 0) { cur.pieces.splice(i, 1); drawEdges(); return; }
+    var x = Math.max(0, Math.min(cur.w - sz[0], snap(p[0] - sz[0] / 2))), y = Math.max(0, Math.min(cur.h - sz[1], snap(p[1] - sz[1] / 2)));
+    (cur.pieces || (cur.pieces = [])).push([x, y, sz[0], sz[1]]);
+    drawEdges();
   }
   function edgeAt(e, lock) {
     var r = $("o-mapgrid").getBoundingClientRect();
@@ -445,6 +467,7 @@
   (function () {
     var down = false, edgeMode = null, last = "", lock = null;
     function hitEdge(e, first) {
+      if (paint === "|x") { var pi = pieceAt(boardPos(e)); if (pi >= 0) { cur.pieces.splice(pi, 1); drawEdges(); if (first) edgeMode = "remove"; return; } }
       var ed = edgeAt(e, first ? null : lock); if (!ed) return;
       if (first) lock = ed[2] === "v" ? ["v", ed[0]] : ["h", ed[1]];
       var key = ed.join(","); if (!first && key === last) return; last = key;
@@ -465,14 +488,14 @@
       el.className = paint === "#" ? "w" : paint === "o" ? "c" : "";
     }
     var g = $("o-mapgrid");
-    g.addEventListener("pointerdown", function (e) { down = true; if (paint.charAt(0) === "|") hitEdge(e, true); else hit(e); e.preventDefault(); });
+    g.addEventListener("pointerdown", function (e) { e.preventDefault(); if (paint.charAt(0) === "*") { placePiece(e); preview(); return; } down = true; if (paint.charAt(0) === "|") hitEdge(e, true); else hit(e); });
     window.addEventListener("pointermove", function (e) { if (down) hit(e); });
     window.addEventListener("pointerup", function () { if (down) { down = false; preview(); } });
     document.querySelectorAll("[data-paint]").forEach(function (b) {
       b.addEventListener("click", function () {
         paint = b.getAttribute("data-paint");
         document.querySelectorAll("[data-paint]").forEach(function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
-        $("o-mapgrid").classList.toggle("edge", paint.charAt(0) === "|");
+        $("o-mapgrid").classList.toggle("edge", paint.charAt(0) !== "#" && paint.charAt(0) !== "o" && paint !== ".");
       });
     });
   })();

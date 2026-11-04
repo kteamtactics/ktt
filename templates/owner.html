@@ -57,11 +57,15 @@
 <button type="button" class="chip" data-paint="|w" aria-pressed="true">Wall</button>
 <button type="button" class="chip" data-paint="|c" aria-pressed="false">Cover</button>
 <button type="button" class="chip" data-paint="|x" aria-pressed="false">Eraser</button>
+<span class="label" style="margin-left:12px">Anywhere</span>
+<button type="button" class="chip" data-paint="*h" aria-pressed="false">Cover —</button>
+<button type="button" class="chip" data-paint="*v" aria-pressed="false">Cover |</button>
+<button type="button" class="chip" data-paint="*b" aria-pressed="false">Cover ■</button>
 <span class="label" style="margin-left:12px">Whole squares</span>
 <button type="button" class="chip" data-paint="#" aria-pressed="false">Solid block</button>
 <button type="button" class="chip" data-paint="o" aria-pressed="false">Cover block</button>
 <button type="button" class="chip" data-paint="." aria-pressed="false">Empty square</button>
-<span class="small" style="flex-basis:100%">Click on a line between two squares, or drag along it. Click a line again to remove it.</span>
+<span class="small" style="flex-basis:100%">Lines: click on a line between two squares, or drag along it; click it again to remove it. Anywhere: click where you want the cover. Eraser removes lines and covers.</span>
 </div>
 <div class="o-mapgridbox"><div id="o-mapgrid" class="o-mapgrid"></div><svg id="o-mapedges" class="o-mapedges" preserveAspectRatio="none"></svg></div>
 </div>
