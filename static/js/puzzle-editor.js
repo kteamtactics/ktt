@@ -44,7 +44,7 @@
     h += "</div>";
 
     h += '<h3 class="label" style="color:var(--text);margin-top:20px">2. The operatives</h3>';
-    h += '<p class="small">One block per operative still on the board. <b>Weapons</b>: one per line, written <code>Name | melee</code> or <code>Name | ranged | rules</code> (write <code>Torrent 2"</code> in the rules to allow several targets). <b>Other actions</b> (ploys, unique actions): one per line, <code>Name | AP</code>. To place an operative, click <b>Place on the board</b>, then click on the board: it goes to the centre of the square (hold Shift to place it exactly where you click).</p>';
+    h += '<p class="small">One block per operative still on the board. <b>Weapons</b>: one per line, written <code>Name | melee</code> or <code>Name | ranged | rules</code> (in the rules, <code>Torrent 2"</code> lets it hit other targets within 2" of the first one, <code>Salvo</code> lets it pick several targets anywhere, <code>Salvo 3</code> up to 3). Without weapons, the operative can still Fight and Shoot. <b>Other actions</b> (ploys, unique actions): one per line, <code>Name | AP</code>. To place an operative, click <b>Place on the board</b>, then click on the board: it goes to the centre of the square (hold Shift to place it exactly where you click).</p>';
     play.units.forEach(function (u, i) {
       h += '<div class="pz-unit" data-i="' + i + '">';
       h += '<div class="row"><label style="max-width:90px">Code<input data-f="id" value="' + esc(u.id) + '" maxlength="3"></label><label style="flex:3">Name<input data-f="name" value="' + esc(u.name || "") + '"></label>';

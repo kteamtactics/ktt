@@ -32,15 +32,19 @@
     a = (a || []).map(String).sort(); b = (b || []).map(String).sort();
     return a.length === b.length && a.every(function (x, i) { return x === b[i]; });
   }
-  function weapons(u) {
-    return (u.weapons || []).map(function (w) {
-      if (typeof w === "string") {
-        var p = w.split("|").map(function (x) { return x.trim(); });
-        var t = /torrent\s*(\d+(?:\.\d+)?)/i.exec(p.slice(2).join(" "));
-        return { name: p[0], kind: /melee/i.test(p[1] || "") ? "melee" : "ranged", torrent: t ? +t[1] : 0, rules: p.slice(2).join(" · ") };
-      }
-      return { name: w.name, kind: w.kind === "melee" ? "melee" : "ranged", torrent: +w.torrent || 0, rules: w.rules || "" };
+  // weapons: "Name | melee" or "Name | ranged | rules". In the rules, Torrent 2" = other targets within 2" of the first one,
+  // Salvo (or Salvo 3) = several targets anywhere. With no weapon of a kind, the operative still gets a plain Fight / Shoot.
+  function weapons(u, real) {
+    var list = (u.weapons || []).map(function (w) {
+      if (typeof w !== "string") w = [w.name, w.kind, w.rules || (w.torrent ? "Torrent " + w.torrent + '"' : "")].join(" | ");
+      var p = w.split("|").map(function (x) { return x.trim(); }), rules = p.slice(2).join(" ");
+      var t = /torrent\s*(\d+(?:\.\d+)?)/i.exec(rules), sv = /salvo\s*(\d+)?/i.exec(rules);
+      return { name: p[0], kind: /melee/i.test(p[1] || "") ? "melee" : "ranged", torrent: t ? +t[1] : 0, salvo: sv ? (+sv[1] || 99) : 0, rules: p.slice(2).join(" · ") };
     });
+    if (real) return list;
+    if (!list.some(function (w) { return w.kind === "melee"; })) list.push({ name: "Melee", kind: "melee", torrent: 0, salvo: 0, rules: "", plain: true });
+    if (!list.some(function (w) { return w.kind === "ranged"; })) list.push({ name: "Ranged", kind: "ranged", torrent: 0, salvo: 0, rules: "", plain: true });
+    return list;
   }
   function extraActions(u) {
     return (u.actions || []).map(function (a) {
@@ -107,6 +111,38 @@
       return false;
     }
     function inside(p) { return p[0] > 0 && p[1] > 0 && p[0] < m.w && p[1] < m.h; }
+    function solid(p) { return grid && ((m.rows || [])[Math.floor(p[1])] || "").charAt(Math.floor(p[0])) === "#"; }
+    // length of the shortest way from a to b going around walls (in map units), Infinity if there is none
+    function pathLen(a, b) {
+      var d0 = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (!blocked(a, b)) return d0;
+      var S = 0.5, W = Math.ceil(m.w / S), H = Math.ceil(m.h / S), N = W * H, i, j;
+      var pos = function (n) { return [(n % W) * S + S / 2, Math.floor(n / W) * S + S / 2]; };
+      var dist = new Array(N), seen = new Array(N), best = Infinity;
+      for (i = 0; i < N; i++) { dist[i] = Infinity; seen[i] = solid(pos(i)); }
+      for (i = 0; i < N; i++) {
+        var q = pos(i), da = Math.hypot(q[0] - a[0], q[1] - a[1]);
+        if (!seen[i] && da <= 1.2 && !blocked(a, q)) dist[i] = da;
+      }
+      var OFF = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1], [2, 1], [1, 2], [-2, 1], [-1, 2], [2, -1], [1, -2], [-2, -1], [-1, -2]];
+      for (;;) {
+        var u = -1, du = Infinity;
+        for (i = 0; i < N; i++) if (!seen[i] && dist[i] < du) { du = dist[i]; u = i; }
+        if (u < 0 || du >= best) break;
+        seen[u] = true;
+        var pu = pos(u), db = Math.hypot(b[0] - pu[0], b[1] - pu[1]);
+        if (db <= 1.2 && !blocked(pu, b)) best = Math.min(best, du + db);
+        var x = u % W, y = Math.floor(u / W);
+        for (j = 0; j < OFF.length; j++) {
+          var nx = x + OFF[j][0], ny = y + OFF[j][1];
+          if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+          var v = ny * W + nx; if (seen[v]) continue;
+          var pv = pos(v), nd = du + Math.hypot(pv[0] - pu[0], pv[1] - pu[1]);
+          if (nd < dist[v] && !blocked(pu, pv)) dist[v] = nd;
+        }
+      }
+      return best;
+    }
 
     // ---------- the expected line ----------
     function expected() { return solution[st.k] || null; }
@@ -179,8 +215,8 @@
       if ((type === "reposition" || type === "charge" || type === "fall_back") && moved) return "It already made a Reposition, Charge or Fall Back.";
       if ((type === "reposition" || type === "dash" || type === "charge") && ctl) return "It is in control range of an enemy.";
       if (type === "fall_back" && !ctl) return "It is not in control range of an enemy.";
-      if (type === "fight") { if (!ctl) return "No enemy in its control range."; if (!weapons(u).some(function (x) { return x.kind === "melee"; })) return "No melee weapon."; }
-      if (type === "shoot") { if (ctl) return "It can't shoot while in control range of an enemy."; if (!weapons(u).some(function (x) { return x.kind === "ranged"; })) return "No ranged weapon."; }
+      if (type === "fight") { if (!ctl) return "No enemy in its control range."; }
+      if (type === "shoot") { if (ctl) return "It can't shoot while in control range of an enemy."; }
       return "";
     }
     function hint(t) { msg = { kind: "hint", text: t }; }
@@ -193,7 +229,7 @@
       if (type === "reposition" || type === "dash" || type === "fall_back") hint(name + ": click where it goes.");
       else if (type === "charge") hint("Charge: click the enemy it charges.");
       else if (type === "fight") hint("Fight with " + w.name + ": click the enemy.");
-      else if (type === "shoot") hint("Shoot with " + w.name + ": click the target" + (w.torrent ? ", then the other targets within " + w.torrent + "\" of it (Torrent), then Confirm." : "."));
+      else if (type === "shoot") hint("Shoot with " + w.name + ": click the target" + (w.torrent ? ", then the other targets within " + w.torrent + "\" of it (Torrent), then Confirm." : w.salvo ? ", then the other targets (Salvo), then Confirm." : "."));
       render();
     }
     function doAction(x) {
@@ -228,11 +264,13 @@
       if (!mode) { if (hit && hit !== act.unit) { hint("Finish the activation of " + st.name[act.unit] + " first."); render(); } return; }
       var k = act.unit, u = byId[k], t = mode.type;
       if (t === "reposition" || t === "dash" || t === "fall_back" || (t === "charge" && mode.target)) {
-        var to = [r1(p[0]), r1(p[1])], dist = Math.hypot(to[0] - st.pos[k][0], to[1] - st.pos[k][1]) / INCH;
+        var to = [r1(p[0]), r1(p[1])];
         var max = t === "dash" ? 3 : (+u.move || 6) + (t === "charge" ? 2 : 0);
         if (!inside(to)) return;
-        if (dist > max + 0.05) { hint(ACT[t].name + ": that's " + r1(dist) + "\", the most is " + max + "\"."); render(); return; }
-        if (blocked(st.pos[k], to)) { hint("A wall is in the way. Go around it in two moves, or pick another spot."); render(); return; }
+        if (solid(to)) { hint("It can't end its move inside a wall."); render(); return; }
+        var dist = pathLen(st.pos[k], to) / INCH;
+        if (dist === Infinity) { hint("It can't get there: walls block every way."); render(); return; }
+        if (dist > max + 0.05) { hint(ACT[t].name + ": the shortest way" + (blocked(st.pos[k], to) ? " around the walls" : "") + " is " + r1(dist) + "\", the most is " + max + "\"."); render(); return; }
         if (t === "charge") {
           if (gapP(to, mode.target) > 1.0001) { hint("A charge must end in control range (1\") of " + st.name[mode.target] + "."); render(); return; }
         } else if (inControl(k, to).length) { hint("It can't end this move in control range of an enemy."); render(); return; }
@@ -255,10 +293,11 @@
         if (mode.targets.indexOf(hit) !== -1) { mode.targets.splice(mode.targets.indexOf(hit), 1); render(); return; }
         if (!mode.targets.length) {
           mode.targets.push(hit);
-          if (!w.torrent) { doAction({ type: "shoot", targets: mode.targets.slice(), weapon: w.name }); return; }
-          hint("Torrent: click the other targets within " + w.torrent + "\" of " + st.name[hit] + ", then Confirm.");
+          if (!w.torrent && !w.salvo) { doAction({ type: "shoot", targets: mode.targets.slice(), weapon: w.name }); return; }
+          hint(w.torrent ? "Torrent: click the other targets within " + w.torrent + "\" of " + st.name[hit] + ", then Confirm." : "Salvo: click the other targets, then Confirm.");
         } else {
-          if (gap(mode.targets[0], hit) > w.torrent + 0.0001) { hint(st.name[hit] + " is not within " + w.torrent + "\" of " + st.name[mode.targets[0]] + "."); render(); return; }
+          if (w.salvo && mode.targets.length >= w.salvo) { hint("Salvo: " + w.salvo + " targets at most."); render(); return; }
+          if (w.torrent && gap(mode.targets[0], hit) > w.torrent + 0.0001) { hint(st.name[hit] + " is not within " + w.torrent + "\" of " + st.name[mode.targets[0]] + "."); render(); return; }
           mode.targets.push(hit); hint(mode.targets.length + " targets. Click more, or Confirm.");
         }
         render();
@@ -362,10 +401,10 @@
         ["reposition", "dash", "charge", "fall_back"].forEach(function (t) { h += btn(t, null, ACT[t].name, ACT[t].ap + " AP · " + ACT[t].help); });
         weapons(u).forEach(function (w, i) {
           var t = w.kind === "melee" ? "fight" : "shoot";
-          h += btn(t, i, (t === "fight" ? "Fight · " : "Shoot · ") + w.name, "1 AP" + (w.rules ? " · " + w.rules : ""));
+          h += btn(t, i, w.plain ? (t === "fight" ? "Fight" : "Shoot") : (t === "fight" ? "Fight · " : "Shoot · ") + w.name, "1 AP" + (w.rules ? " · " + w.rules : ""));
         });
         extraActions(u).forEach(function (w, i) { h += btn("custom", i, w.name, w.ap + " AP"); });
-        if (mode && mode.type === "shoot" && mode.targets.length && mode.weapon.torrent) h += '<button type="button" class="pz-go" data-confirm><b>CONFIRM THE SHOT</b><span>' + mode.targets.length + " target(s)</span></button>";
+        if (mode && mode.type === "shoot" && mode.targets.length && (mode.weapon.torrent || mode.weapon.salvo)) h += '<button type="button" class="pz-go" data-confirm><b>CONFIRM THE SHOT</b><span>' + mode.targets.length + " target(s)</span></button>";
         if (mode) h += '<button type="button" data-cancel><b>CANCEL</b><span>Choose another action.</span></button>';
         h += "</div>";
         h += '<div class="gb-btns"><button type="button" class="go" data-end>END ACTIVATION</button></div>';
@@ -407,7 +446,7 @@
         var k = String(u.id);
         h += '<div class="' + (st.dead[k] ? "dead" : "") + '"><i class="' + (st.side[k] === "B" ? "b" : "a") + '"></i><b>' + esc(k) + "</b> " + esc(u.name || k) +
           ' <small>APL ' + esc(u.apl || "?") + " · M " + esc(u.move || "?") + '"' + (u.wounds ? " · W " + esc(u.wounds) : "") + "</small>" +
-          (weapons(u).length ? '<small class="w">' + weapons(u).map(function (w) { return esc(w.name) + (w.rules ? " (" + esc(w.rules) + ")" : ""); }).join(" · ") + "</small>" : "") + "</div>";
+          (weapons(u, true).length ? '<small class="w">' + weapons(u, true).map(function (w) { return esc(w.name) + (w.rules ? " (" + esc(w.rules) + ")" : ""); }).join(" · ") + "</small>" : "") + "</div>";
       });
       return h + "</div>";
     }
