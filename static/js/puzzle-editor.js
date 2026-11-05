@@ -52,6 +52,10 @@
       h += '<div class="row"><label>APL<input data-f="apl" type="number" min="1" max="5" value="' + esc(u.apl || "") + '"></label><label>Move (")<input data-f="move" type="number" min="1" max="12" value="' + esc(u.move || "") + '"></label><label>Wounds<input data-f="wounds" type="number" min="1" max="40" value="' + esc(u.wounds || "") + '"></label>';
       if (u.side !== "B") h += '<label class="o-check" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" data-f="control"' + (u.control ? " checked" : "") + "> The reader plays it</label>";
       h += "</div>";
+      var on = u.bonus_on || [];
+      h += '<div class="row" style="align-items:center;justify-content:flex-start;gap:10px"><label style="max-width:150px">Extra AP<input data-f="bonus_ap" type="number" min="0" max="3" value="' + esc(u.bonus_ap || "") + '" placeholder="0"></label><span class="small">after its first</span>' +
+        ["charge", "fight", "shoot"].map(function (t) { return '<label class="o-check" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" data-on="' + t + '"' + (on.indexOf(t) !== -1 ? " checked" : "") + "> " + t.charAt(0).toUpperCase() + t.slice(1) + "</label>"; }).join("") +
+        '<span class="small">(e.g. Wrecka Krew: +1 AP after its first Charge, Fight or Shoot)</span></div>';
       h += '<div class="row"><label style="flex:2">Weapons<textarea data-f="weapons" rows="2" placeholder="Big choppa | melee&#10;Kustom shoota | ranged | Torrent 2&quot;">' + esc(lines(u.weapons)) + '</textarea></label><label>Other actions<textarea data-f="actions" rows="2" placeholder="Waaagh! | 0">' + esc(lines(u.actions)) + "</textarea></label></div>";
       h += '<div class="row" style="justify-content:flex-start"><button class="btn sm' + (placing === i ? "" : " ghost") + '" type="button" data-place="' + i + '">' + (placing === i ? "Click on the board…" : "Place on the board") + '</button><span class="small">' + (u.at ? "On " + esc(Array.isArray(u.at) ? B.cellName(map(), u.at) : u.at) : "Not placed yet") + '</span><span style="flex:1"></span><button class="btn sm ghost" type="button" data-del="' + i + '">Remove</button></div>';
       h += "</div>";
@@ -117,10 +121,13 @@
       el.querySelectorAll("[data-f]").forEach(function (f) {
         var k = f.getAttribute("data-f"), v = f.type === "checkbox" ? f.checked : f.value.trim();
         if (k === "weapons" || k === "actions") v = unlines(f.value);
-        if (k === "apl" || k === "move" || k === "wounds") v = v === "" ? "" : +v;
+        if (k === "apl" || k === "move" || k === "wounds" || k === "bonus_ap") v = v === "" ? "" : +v;
         if (k === "id") v = v.toUpperCase();
         if (v === "" || v === false || (Array.isArray(v) && !v.length)) delete u[k]; else u[k] = v;
       });
+      var on = [].slice.call(el.querySelectorAll("[data-on]")).filter(function (c) { return c.checked; }).map(function (c) { return c.getAttribute("data-on"); });
+      if (on.length) u.bonus_on = on; else delete u.bonus_on;
+      if (!u.bonus_ap) { delete u.bonus_ap; }
       if (u.side === "B") delete u.control;
     });
     play.map = $("pe-map").value;

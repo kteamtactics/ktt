@@ -154,6 +154,13 @@
       if (x.type === "shoot") (x.targets || []).forEach(function (t) { if (st.pos[String(t)]) marks.shots.push({ a: unit, b: String(t), from: st.pos[unit].slice(), to: st.pos[String(t)].slice() }); });
       (x.kills || []).forEach(function (k) { k = String(k); st.dead[k] = true; marks.killed[k] = true; });
     }
+    // pay the AP of an action; some operatives gain AP the first time they Charge, Fight or Shoot
+    function spend(k, x) {
+      act.ap -= x.ap;
+      var u = byId[k], on = u.bonus_on || [];
+      if (+u.bonus_ap && !act.bonus && on.indexOf(x.type) !== -1) { act.bonus = true; act.ap += +u.bonus_ap; return +u.bonus_ap; }
+      return 0;
+    }
     function startActivation(k) {
       if (act || done) return;
       act = { unit: k, ap: +(byId[k].apl || 2), actions: [] };
@@ -197,14 +204,15 @@
           if (!x.kills) { mode = { type: "kills", x: x, sel: [] }; hint("Who is incapacitated by this attack? Pick them, then Confirm."); render(); return; }
         } else x.kills = killsFor(k, x);
       }
-      act.ap -= x.ap;
+      var gained = spend(k, x);
       act.actions.push(x);
       applyAction(k, x, true);
       fx = true; mode = null; msg = null;
+      var note = gained ? " " + st.name[k] + " gains " + gained + " AP." : "";
       if (x.type === "fight" || x.type === "shoot") {
         var dead = x.kills || [];
-        hint(dead.length ? dead.map(function (t) { return st.name[t]; }).join(", ") + (dead.length > 1 ? " are" : " is") + " incapacitated." : "No one is incapacitated.");
-      }
+        hint((dead.length ? dead.map(function (t) { return st.name[t]; }).join(", ") + (dead.length > 1 ? " are" : " is") + " incapacitated." : "No one is incapacitated.") + note);
+      } else if (note) hint(note.trim());
       render();
       if (opts.onChange) opts.onChange();
     }
@@ -350,7 +358,7 @@
           h += "</div></div>";
           root.innerHTML = h; fx = false; return;
         }
-        h += '<div class="gb-box gb-actions"><small>' + esc(String(st.name[act.unit]).toUpperCase()) + " · AP " + act.ap + "/" + (+u.apl || 2) + "</small>";
+        h += '<div class="gb-box gb-actions"><small>' + esc(String(st.name[act.unit]).toUpperCase()) + " · " + act.ap + " AP LEFT" + (+u.bonus_ap && !act.bonus ? " (+" + (+u.bonus_ap) + " AFTER ITS FIRST " + (u.bonus_on || []).map(function (t) { return ACT[t] ? ACT[t].name.toUpperCase() : t; }).join(" / ") + ")" : "") + "</small>";
         ["reposition", "dash", "charge", "fall_back"].forEach(function (t) { h += btn(t, null, ACT[t].name, ACT[t].ap + " AP · " + ACT[t].help); });
         weapons(u).forEach(function (w, i) {
           var t = w.kind === "melee" ? "fight" : "shoot";
@@ -436,7 +444,7 @@
         replay();
         if (had) {
           startActivation(cur.unit);
-          cur.actions.forEach(function (x) { act.ap -= x.ap; act.actions.push(x); applyAction(cur.unit, x); });
+          cur.actions.forEach(function (x) { spend(cur.unit, x); act.actions.push(x); applyAction(cur.unit, x); });
           render();
         }
       } else if (solution.length) { solution = solution.slice(0, -1); replay(); }
